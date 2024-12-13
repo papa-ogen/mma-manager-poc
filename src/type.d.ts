@@ -10,7 +10,6 @@ export type traitsType =
 export interface Fighter {
   id: string;
   name: string;
-  age: number;
   weightClass: string;
   background: string;
   nationality: string;
@@ -31,10 +30,12 @@ export interface Fighter {
     groundDefense: number;
   };
   physical: {
+    age: number;
     reach: number;
     height: number;
     weight: number;
     speed: number;
+    stance: "southpaw" | "orthodox" | "all";
   };
   traits: traitsType[];
   record: {

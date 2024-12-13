@@ -4,7 +4,6 @@ export const fighters: Fighter[] = [
   {
     id: "fighter_001",
     name: "John 'The Hurricane' Doe",
-    age: 29,
     weightClass: "Lightweight",
     background: "Muay Thai",
     nationality: "USA",
@@ -12,7 +11,7 @@ export const fighters: Fighter[] = [
       striking: 85,
       grappling: 65,
       submission: 50,
-      stamina: 80,
+      stamina: 10,
       defense: 70,
       mentalToughness: 75,
     },
@@ -25,10 +24,12 @@ export const fighters: Fighter[] = [
       groundDefense: 60,
     },
     physical: {
+      age: 29,
       height: 173,
       weight: 70,
       reach: 177,
       speed: 85,
+      stance: "orthodox",
     },
     traits: ["Initiative Taker", "The Showman"],
     record: {
@@ -44,7 +45,6 @@ export const fighters: Fighter[] = [
   {
     id: "fighter_002",
     name: "Mike 'The Beast' Johnson",
-    age: 27,
     weightClass: "Middleweight",
     background: "Boxing",
     nationality: "USA",
@@ -65,10 +65,12 @@ export const fighters: Fighter[] = [
       groundDefense: 55,
     },
     physical: {
+      age: 27,
       height: 175,
       weight: 70,
       reach: 190,
       speed: 80,
+      stance: "southpaw",
     },
     traits: ["Dirty Boxer"],
     record: {

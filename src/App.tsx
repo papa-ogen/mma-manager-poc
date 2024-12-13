@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { fighters as fightersData } from "./fighters";
 import { Fighter, IEvent } from "./type";
 import { useImmer } from "use-immer";
@@ -41,57 +41,106 @@ const EventList = ({ events }: { events: IEvent[] }) => {
 
 function App() {
   const [fighters, setFighters] = useImmer<Fighter[]>(fightersData);
-  const [currentRound, setCurrentRound] = useState(1);
+  const [actionRound, setActionRound] = useState(1);
   const [events, setEvents] = useImmer<IEvent[]>([]);
+  const [round, setRound] = useState(1);
+  const [roundTime, setRoundTime] = useState(300); // 5 minutes in seconds
+  const [isTimerRunning, setIsTimerRunning] = useState(false);
+  const eventsContainerRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
+    if (eventsContainerRef.current) {
+      eventsContainerRef.current.scrollTop =
+        eventsContainerRef.current.scrollHeight;
+    }
+  }, [events]); // Trigger when events update
+
+  useEffect(() => {
+    let timer: NodeJS.Timeout | null = null;
+
+    if (isTimerRunning) {
+      timer = setInterval(() => {
+        setRoundTime((prevTime) => {
+          if (prevTime <= 1) {
+            // End of the round
+            clearInterval(timer!);
+            setIsTimerRunning(false);
+            setRound((prevRound) => prevRound + 1); // Increment round
+            return 300; // Reset timer to 5 minutes
+          }
+          return prevTime - 1; // Decrement time
+        });
+      }, 1000);
+    }
+
+    return () => {
+      if (timer) clearInterval(timer); // Cleanup interval on unmount or dependency change
+    };
+  }, [isTimerRunning]);
+
+  const formatTime = (time: number) => {
+    const minutes = Math.floor(time / 60);
+    const seconds = time % 60;
+    return `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
+  };
+
+  // Refs to hold the latest values
+  const fightersRef = useRef(fighters);
+  const currentRoundRef = useRef(actionRound);
+
+  // Update refs whenever state changes
+  useEffect(() => {
+    fightersRef.current = fighters;
+  }, [fighters]);
+
+  useEffect(() => {
+    currentRoundRef.current = actionRound;
+  }, [actionRound]);
+
+  useEffect(() => {
+    let timer: NodeJS.Timeout | null = null;
+    let fightInterval: NodeJS.Timeout | null = null;
+
     function updateFighterStamina(defender: Fighter, damage: number = 10) {
       setFighters((draft) => {
-        // Find the correct fighter by ID
         const fighterToUpdate = draft.find(
           (fighter) => fighter.id === defender.id
         );
         if (fighterToUpdate) {
-          // Update the fighter's stamina
           fighterToUpdate.stats.stamina -= damage;
         }
       });
     }
 
-    // Simulate a round of fighting
     const simulateFightRound = (fighterA: Fighter, fighterB: Fighter) => {
-      // Determine which fighter is taking the action (50% chance for either fighter)
       const attacker = Math.random() > 0.5 ? fighterA : fighterB;
       const defender = attacker === fighterA ? fighterB : fighterA;
 
-      // Simulate an action (strike, kick, takedown, etc.)
       const actions = ["strike", "kick", "takedown", "clinch"];
       const action = actions[Math.floor(Math.random() * actions.length)];
 
       switch (action) {
         case "strike":
           setEvents((draft) => {
-            draft.unshift({
-              time: `5:00`,
+            draft.push({
+              time: formatTime(roundTime),
               type: "throw",
               message: `${attacker.name} throws a punch!`,
             });
           });
-
           if (Math.random() < 0.7) {
             setEvents((draft) => {
-              draft.unshift({
-                time: `5:00`,
+              draft.push({
+                time: formatTime(roundTime),
                 type: "land",
                 message: `${attacker.name} lands the strike!`,
               });
             });
-
             updateFighterStamina(defender, 5);
           } else {
             setEvents((draft) => {
-              draft.unshift({
-                time: `5:00`,
+              draft.push({
+                time: formatTime(roundTime),
                 type: "miss",
                 message: `${attacker.name} misses the strike!`,
               });
@@ -100,27 +149,25 @@ function App() {
           break;
         case "kick":
           setEvents((draft) => {
-            draft.unshift({
-              time: `5:00`,
+            draft.push({
+              time: formatTime(roundTime),
               type: "throw",
               message: `${attacker.name} throws a kick!`,
             });
           });
-
           if (Math.random() < 0.6) {
             setEvents((draft) => {
-              draft.unshift({
-                time: `5:00`,
+              draft.push({
+                time: formatTime(roundTime),
                 type: "land",
                 message: `${attacker.name} lands the kick!`,
               });
             });
-
-            updateFighterStamina(defender);
+            updateFighterStamina(defender, 10);
           } else {
             setEvents((draft) => {
-              draft.unshift({
-                time: `5:00`,
+              draft.push({
+                time: formatTime(roundTime),
                 type: "miss",
                 message: `${attacker.name} misses the kick!`,
               });
@@ -129,17 +176,17 @@ function App() {
           break;
         case "takedown":
           setEvents((draft) => {
-            draft.unshift({
-              time: `5:00`,
-              type: "announcement",
+            draft.push({
+              time: formatTime(roundTime),
+              type: "throw",
               message: `${attacker.name} attempts a takedown!`,
             });
           });
 
           if (Math.random() < 0.5) {
             setEvents((draft) => {
-              draft.unshift({
-                time: `5:00`,
+              draft.push({
+                time: formatTime(roundTime),
                 type: "land",
                 message: `${attacker.name} successfully takes down ${defender.name}!`,
               });
@@ -147,8 +194,8 @@ function App() {
             updateFighterStamina(defender, 15);
           } else {
             setEvents((draft) => {
-              draft.unshift({
-                time: `5:00`,
+              draft.push({
+                time: formatTime(roundTime),
                 type: "miss",
                 message: `${attacker.name} fails the takedown!`,
               });
@@ -157,27 +204,25 @@ function App() {
           break;
         case "clinch":
           setEvents((draft) => {
-            draft.unshift({
-              time: `5:00`,
-              type: "announcement",
+            draft.push({
+              time: formatTime(roundTime),
+              type: "throw",
               message: `${attacker.name} pulls ${defender.name} into a clinch!`,
             });
           });
-
           if (Math.random() < 0.8) {
             setEvents((draft) => {
-              draft.unshift({
-                time: `5:00`,
+              draft.push({
+                time: formatTime(roundTime),
                 type: "land",
                 message: `${attacker.name} controls the clinch!`,
               });
             });
-
             updateFighterStamina(defender, 5);
           } else {
             setEvents((draft) => {
-              draft.unshift({
-                time: `5:00`,
+              draft.push({
+                time: formatTime(roundTime),
                 type: "miss",
                 message: `${attacker.name} is unable to control the clinch!`,
               });
@@ -185,41 +230,67 @@ function App() {
           }
           break;
         default:
-          console.log("Unknown action!");
+          setEvents((draft) => {
+            draft.push({
+              time: formatTime(roundTime),
+              type: "disabled",
+              message: `...`,
+            });
+          });
           break;
       }
     };
 
     const startFightSimulation = () => {
-      const interval = setInterval(() => {
-        simulateFightRound(fighters[0], fighters[1]);
+      fightInterval = setInterval(() => {
+        const [fighterA, fighterB] = fightersRef.current;
+        simulateFightRound(fighterA, fighterB);
 
-        setCurrentRound(currentRound + 1);
+        setActionRound(currentRoundRef.current + 1);
 
-        // End the fight if either fighter's stamina reaches 0
-        if (fighters[0].stats.stamina <= 0 || fighters[1].stats.stamina <= 0) {
+        if (
+          fightersRef.current[0].stats.stamina <= 0 ||
+          fightersRef.current[1].stats.stamina <= 0
+        ) {
           setEvents((draft) => {
             draft.unshift({
-              time: `5:00`,
+              time: formatTime(roundTime),
               type: "announcement",
               message: `Fight over!`,
             });
           });
-          clearInterval(interval);
+          clearInterval(fightInterval);
+          clearInterval(timer!);
         }
-      }, 2000); // Fight rounds run every 2 seconds
+      }, 2000);
     };
 
-    setEvents((draft) => {
-      draft.unshift({
-        time: `5:00`,
-        type: "announcement",
-        message: `Round is starting... Round ${currentRound}...`,
+    if (isTimerRunning) {
+      setEvents((draft) => {
+        draft.push({
+          time: `5:00`,
+          type: "announcement",
+          message: `Round is starting..`,
+        });
       });
-    });
 
-    startFightSimulation();
-  }, [currentRound, setEvents, fighters, setFighters]);
+      startFightSimulation();
+
+      timer = setInterval(() => {
+        setRoundTime((prevTime) => {
+          if (prevTime <= 1) {
+            // End of the round
+            clearInterval(timer!);
+            setIsTimerRunning(false);
+            clearInterval(fightInterval!); // Stop fight simulation
+            setRound((prevRound) => prevRound + 1); // Increment round
+            return 300; // Reset timer to 5 minutes
+          }
+          return prevTime - 1; // Decrement time
+        });
+      }, 1000); // 1-second interval for countdown
+    }
+  }, [isTimerRunning, setEvents, setFighters]);
 
   return (
     <div className="font-koulen bg-gray-100 min-h-screen flex flex-col items-center justify-start py-4 px-8">
@@ -230,16 +301,27 @@ function App() {
         <h3>
           {fighters[0].name} vs {fighters[1].name}
         </h3>
-        <div className="bg-red-700 p-2">5:00 Round {currentRound}</div>
+        <div className="bg-red-700 p-2">
+          {formatTime(roundTime)} - Round {round}
+        </div>
+        <button
+          className="mt-4 px-4 py-2 bg-green-500 text-white rounded"
+          onClick={() => setIsTimerRunning((prev) => !prev)}
+        >
+          {isTimerRunning ? "Pause Timer" : "Start Timer"}
+        </button>
       </header>
-      <div className="grid grid-cols-3 gap-2 items-stretch w-full p-4">
+      <div className="grid grid-cols-[1fr_3fr_1fr] gap-2 items-stretch w-full p-4">
         <div className="flex flex-col items-center justify-start">
           <h2>{fighters[0].name}</h2>
           <h3>{fighters[0].nationality}</h3>
           <h3>Stamina: {fighters[0].stats.stamina}</h3>
         </div>
-        <div className="border-red-900 border p-4 h-80 max-h-96 overflow-y-auto">
-          <h2>Events (Round {currentRound})</h2>
+        <div
+          ref={eventsContainerRef}
+          className="border-red-900 border p-4 h-[600px] overflow-y-auto"
+        >
+          <h2>Events (Action {actionRound})</h2>
           <EventList events={events} />
         </div>
         <div className="flex flex-col items-center justify-start">
