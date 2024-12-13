@@ -47,3 +47,11 @@ export interface Fighter {
   };
   fanPopularity: number;
 }
+
+type FightActionType = "throw" | "land" | "miss" | "disabled" | "announcement";
+
+export interface IEvent {
+  time: string;
+  type: FightActionType;
+  message: string;
+}
