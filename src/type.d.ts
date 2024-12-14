@@ -36,6 +36,7 @@ export interface Fighter {
     weight: number;
     speed: number;
     stance: "southpaw" | "orthodox" | "all";
+    cardio: number;
   };
   traits: traitsType[];
   record: {

@@ -1,138 +1,293 @@
-import { fighters } from "./fighters";
-import { Fighter } from "./type";
+type MartialArtTechniqueType =
+  | "punch"
+  | "kick"
+  | "elbow"
+  | "knee"
+  | "takedown"
+  | "submission"
+  | "grappling"
+  | "clinch"
+  | "stomp"
+  | "ground and pound"
+  | "dirty boxing"
+  | "soccer kick"
+  | "upkick"
+  | "stand up"
+  | "disengage"
+  | "moving closer"
+  | "moving away";
+type PostureType = "standing" | "laying down" | "seated" | "crouching";
+type EngagementType =
+  | "grappling"
+  | "striking distance"
+  | "clinch"
+  | "distance"
+  | "start position";
+type StanceType = "orthodox" | "southpaw" | "all";
+type KickType =
+  | "front"
+  | "side"
+  | "roundhouse"
+  | "axe"
+  | "push"
+  | "crescent"
+  | "spinning"
+  | "back"
+  | "oblique"
+  | "flying"
+  | "jumping";
+type PunchType =
+  | "jab"
+  | "cross"
+  | "hook"
+  | "uppercut"
+  | "overhand"
+  | "backfist"
+  | "superman";
+type ElbowType =
+  | "horizontal"
+  | "vertical"
+  | "slashing"
+  | "upward"
+  | "back"
+  | "spinning";
+type KneeType = "straight" | "curving" | "flying" | "jumping";
+type GrapplingType =
+  | "single leg"
+  | "double leg"
+  | "body lock"
+  | "fireman's carry"
+  | "hip toss"
+  | "suplex"
+  | "arm drag"
+  | "bear hug"
+  | "clinch"
+  | "ground and pound";
+type SubmissionType =
+  | "armbar"
+  | "kimura"
+  | "triangle"
+  | "choke"
+  | "heel hook"
+  | "kneebar"
+  | "americana"
+  | "omoplata";
+interface IMartialArt {
+  name: string;
+  description: string;
+  techniques: MartialArtTechniqueType[];
+}
+interface IFighter {
+  name: string;
+  weightClass: string;
+  background: IMartialArt[];
+  posture: PostureType;
+  engagement: EngagementType;
+  stance: StanceType;
+  fightProperties: {
+    health: number;
+    stamina: number;
+    injury: string[];
+    initiative: boolean;
+  };
+}
 
-// Color helper function for better visibility in the console
-const colorize = (text: string, color: string) => {
-  return `\x1b[38;5;${color}m${text}\x1b[0m`;
+const muayThai: IMartialArt = {
+  name: "Muay Thai",
+  description: "Thai kickboxing",
+  techniques: ["punch", "kick", "elbow", "knee", "clinch"],
 };
 
-// Apply traits effects
-const applyFightStyleEffect = (attacker: Fighter, defender: Fighter) => {
-  if (attacker.traits.includes("Dirty Boxer")) {
-    if (Math.random() < 0.2) {
-      console.log(colorize(`${attacker.name} throws a low blow!`, "196"));
-      defender.stats.defense -= 5; // Temporary defense penalty
-    }
-  }
-
-  if (attacker.traits.includes("Smelly")) {
-    if (Math.random() < 0.3) {
-      console.log(
-        colorize(
-          `${attacker.name}'s smell distracts ${defender.name}, lowering their focus!`,
-          "208"
-        )
-      );
-      defender.stats.mentalToughness -= 10; // Temporary mental toughness penalty
-    }
-  }
-
-  if (attacker.traits.includes("Laughing Maniac")) {
-    if (Math.random() < 0.15) {
-      console.log(
-        colorize(
-          `${attacker.name} laughs uncontrollably, confusing ${defender.name}!`,
-          "202"
-        )
-      );
-      defender.stats.mentalToughness -= 5; // Slight mental toughness penalty
-    }
-  }
+const wrestling: IMartialArt = {
+  name: "Wrestling",
+  description: "American wrestling",
+  techniques: ["grappling", "takedown"],
 };
 
-// Simulate a round of fighting
-const simulateFightRound = (fighterA: Fighter, fighterB: Fighter) => {
-  // Determine which fighter is taking the action (50% chance for either fighter)
-  const attacker = Math.random() > 0.5 ? fighterA : fighterB;
-  const defender = attacker === fighterA ? fighterB : fighterA;
+const brazilianJiuJitsu: IMartialArt = {
+  name: "Brazilian Jiu-Jitsu",
+  description: "Ground fighting",
+  techniques: ["submission", "grappling"],
+};
 
-  // Apply fight style effects before the action
-  applyFightStyleEffect(attacker, defender);
+const boxing: IMartialArt = {
+  name: "Boxing",
+  description: "American boxing",
+  techniques: ["punch"],
+};
 
-  // Simulate an action (strike, kick, takedown, etc.)
-  const actions = ["strike", "kick", "takedown", "clinch"];
-  const action = actions[Math.floor(Math.random() * actions.length)];
+interface IAction {
+  attacker_posture: PostureType;
+  defender_posture: PostureType;
+  available_actions: MartialArtTechniqueType[];
+}
 
-  // Handle different actions
-  switch (action) {
-    case "strike":
-      console.log(colorize(`${attacker.name} throws a punch!`, "35"));
-      if (Math.random() < 0.7) {
-        console.log(colorize(`${attacker.name} lands the strike!`, "32"));
-        defender.stats.stamina -= 5; // Decrease stamina for the defender
-      } else {
-        console.log(colorize(`${attacker.name} misses the strike!`, "31"));
-      }
-      break;
+const actions: IAction[] = [
+  {
+    attacker_posture: "standing",
+    defender_posture: "standing",
+    available_actions: [
+      "punch",
+      "kick",
+      "elbow",
+      "knee",
+      "clinch",
+      "disengage",
+      "takedown",
+      "dirty boxing",
+    ],
+  },
+  {
+    attacker_posture: "standing",
+    defender_posture: "laying down",
+    available_actions: [
+      "stomp",
+      "soccer kick",
+      "ground and pound",
+      "submission",
+    ],
+  },
+  {
+    attacker_posture: "laying down",
+    defender_posture: "laying down",
+    available_actions: ["ground and pound", "submission", "stand up"],
+  },
+  {
+    attacker_posture: "laying down",
+    defender_posture: "standing",
+    available_actions: ["upkick", "submission", "stand up"],
+  },
+];
 
-    case "kick":
-      console.log(colorize(`${attacker.name} throws a kick!`, "34"));
-      if (Math.random() < 0.6) {
-        console.log(colorize(`${attacker.name} lands the kick!`, "32"));
-        defender.stats.stamina -= 10; // Decrease stamina for the defender
-      } else {
-        console.log(colorize(`${attacker.name} misses the kick!`, "31"));
-      }
-      break;
+const fighter1: IFighter = {
+  name: "Rodtang 'The Iron Man' Jitmuangnon",
+  weightClass: "Lightweight",
+  background: [muayThai, brazilianJiuJitsu],
+  posture: "standing",
+  engagement: "start position",
+  stance: "orthodox",
+  fightProperties: {
+    health: 100,
+    stamina: 100,
+    injury: [],
+    initiative: false,
+  },
+};
 
-    case "takedown":
-      console.log(colorize(`${attacker.name} attempts a takedown!`, "36"));
-      if (Math.random() < 0.5) {
-        console.log(
-          colorize(
-            `${attacker.name} successfully takes down ${defender.name}!`,
-            "32"
-          )
-        );
-        defender.stats.stamina -= 15; // Heavy stamina penalty for being taken down
-      } else {
-        console.log(colorize(`${attacker.name} fails the takedown!`, "31"));
-      }
-      break;
+const fighter2: IFighter = {
+  name: "Mike 'The Wrestler' Johnson",
+  weightClass: "Middleweight",
+  background: [boxing, wrestling],
+  posture: "standing",
+  engagement: "start position",
+  stance: "southpaw",
+  fightProperties: {
+    health: 100,
+    stamina: 100,
+    injury: [],
+    initiative: false,
+  },
+};
 
-    case "clinch":
-      console.log(
-        colorize(`${attacker.name} pulls ${defender.name} into a clinch!`, "33")
-      );
-      if (Math.random() < 0.8) {
-        console.log(colorize(`${attacker.name} controls the clinch!`, "32"));
-        defender.stats.stamina -= 5; // Moderate stamina penalty for being in a clinch
-      } else {
-        console.log(
-          colorize(`${attacker.name} is unable to control the clinch!`, "31")
-        );
-      }
-      break;
+// colorize the console output
+const colorize = (message: string, color: string): string => {
+  return `\x1b[${color}m${message}\x1b[0m`;
+};
 
-    default:
-      console.log("Unknown action!");
-      break;
-  }
+export const fightSimulator = (
+  fighter1: IFighter,
+  fighter2: IFighter
+): void => {
+  let attacker = null;
+  let defender = null;
 
-  // Show current stats
   console.log(
-    colorize(`${fighterA.name}'s stamina: ${fighterA.stats.stamina}`, "90")
+    colorize(
+      `Today's fight is between ${fighter1.name} and ${fighter2.name}`,
+      "32"
+    )
+  );
+  // First we need to determine initiative, 50 - 50 chance
+  const initiative = Math.random() > 0.5;
+  if (initiative) {
+    attacker = fighter1;
+    defender = fighter2;
+  } else {
+    attacker = fighter2;
+    defender = fighter1;
+  }
+
+  console.log(colorize(`${attacker.name} has the initiative`, "31"));
+
+  // determine action based on the engagement
+  if (attacker.engagement === "start position") {
+    // attacker is moving closer, update the engagement and console log
+    attacker.engagement = "striking distance";
+    console.log(
+      colorize(`${attacker.name} is moving closer to ${defender.name}`, "35")
+    );
+  }
+
+  // determine the action based on the posture
+  const availableActions = actions.find(
+    (action) =>
+      action.attacker_posture === attacker.posture &&
+      action.defender_posture === defender.posture
+  );
+
+  console.log(
+    colorize(
+      `Available actions: ${availableActions?.available_actions.join(", ")}`,
+      "33"
+    )
+  );
+
+  // determine prefered techniques based on the fighter's background
+  const preferredTechniques = attacker.background
+    .map((art) => art.techniques)
+    .flat();
+
+  console.log(
+    colorize(
+      `${attacker.name} prefers to use ${preferredTechniques.join(", ")}`,
+      "34"
+    )
+  );
+
+  // randomize the action based on the preferred techniques
+  const action =
+    preferredTechniques[Math.floor(Math.random() * preferredTechniques.length)];
+
+  console.log(colorize(`${attacker.name} will attempt to ${action}`, "36"));
+
+  // did it succeed?
+  const success = Math.random() > 0.5;
+  if (success) {
+    console.log(
+      colorize(`${attacker.name} successfully landed a ${action}`, "32")
+    );
+  } else {
+    console.log(colorize(`${attacker.name} missed the ${action}`, "31"));
+  }
+
+  // update the defender's health
+  defender.fightProperties.health -= 10;
+  // update attacker stamina
+  attacker.fightProperties.stamina -= 10;
+
+  // display fighters health and stamina
+  console.log(
+    colorize(
+      `${attacker.name} has ${attacker.fightProperties.health} health and ${attacker.fightProperties.stamina} stamina left`,
+      "33"
+    )
   );
   console.log(
-    colorize(`${fighterB.name}'s stamina: ${fighterB.stats.stamina}`, "90")
+    colorize(
+      `${defender.name} has ${defender.fightProperties.health} health and ${defender.fightProperties.stamina} stamina left`,
+      "33"
+    )
   );
 };
 
-// Simulate the fight in intervals
-const startFightSimulation = () => {
-  let round = 1;
-  const interval = setInterval(() => {
-    console.log(colorize(`\nRound ${round}...`, "96"));
-    simulateFightRound(fighters[0], fighters[1]);
-    round++;
-
-    // End the fight if either fighter's stamina reaches 0
-    if (fighters[0].stats.stamina <= 0 || fighters[1].stats.stamina <= 0) {
-      console.log(colorize("\nFight over!", "31"));
-      clearInterval(interval);
-    }
-  }, 2000); // Fight rounds run every 2 seconds
-};
-
-// Start the simulation
-startFightSimulation();
+fightSimulator(fighter1, fighter2);

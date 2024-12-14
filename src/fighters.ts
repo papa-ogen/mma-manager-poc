@@ -30,6 +30,7 @@ export const fighters: Fighter[] = [
       reach: 177,
       speed: 85,
       stance: "orthodox",
+      cardio: 90,
     },
     traits: ["Initiative Taker", "The Showman"],
     record: {
@@ -71,6 +72,7 @@ export const fighters: Fighter[] = [
       reach: 190,
       speed: 80,
       stance: "southpaw",
+      cardio: 85,
     },
     traits: ["Dirty Boxer"],
     record: {
