@@ -1,138 +1,156 @@
-import { fighters } from "./fighters";
-import { Fighter } from "./type";
+import { createActionsNarrative } from "./actions/createActionNarrative";
+import { actions as actionsData, fighters as fightersData } from "./data";
+import { setInitiative } from "./actions/setInitiative";
+import { IFighter } from "./type";
+import { generateAttacks } from "./actions/generateAttacks";
+import {
+  addAnnouncement,
+  updateFighterCard,
+  updateRound,
+  updateRoundClock,
+} from "./helpers";
 
-// Color helper function for better visibility in the console
-const colorize = (text: string, color: string) => {
-  return `\x1b[38;5;${color}m${text}\x1b[0m`;
+const [mike, floyd] = fightersData;
+
+let isFightStarted = false;
+let fightInterval: ReturnType<typeof setInterval> | null = null;
+const defaultRoundClock = 10;
+let roundClock = defaultRoundClock;
+let round = 1;
+const maxRounds = 5; // Title bout
+let elapsedSeconds = 0;
+
+export const fightSimulator = (
+  fighter1: IFighter,
+  fighter2: IFighter
+): void => {
+  const [attacker, defender] = setInitiative(fighter1, fighter2);
+
+  // determine action based on the engagement
+  if (attacker.inFight.engagement === "start position") {
+    attacker.inFight.engagement = "striking distance";
+    defender.inFight.engagement = "striking distance";
+
+    addAnnouncement(
+      `${attacker.name} is moving closer to ${defender.name}`,
+      "event"
+    );
+
+    addAnnouncement("", "spacer");
+  }
+
+  const actions = generateAttacks(attacker, defender, actionsData);
+
+  createActionsNarrative(attacker, defender, actions);
 };
 
-// Apply traits effects
-const applyFightStyleEffect = (attacker: Fighter, defender: Fighter) => {
-  if (attacker.traits.includes("Dirty Boxer")) {
-    if (Math.random() < 0.2) {
-      console.log(colorize(`${attacker.name} throws a low blow!`, "196"));
-      defender.stats.defense -= 5; // Temporary defense penalty
-    }
-  }
+document.addEventListener("DOMContentLoaded", () => {
+  // Initialize the round clock and round display
+  updateRoundClock(roundClock);
+  updateRound(round);
 
-  if (attacker.traits.includes("Smelly")) {
-    if (Math.random() < 0.3) {
-      console.log(
-        colorize(
-          `${attacker.name}'s smell distracts ${defender.name}, lowering their focus!`,
-          "208"
-        )
-      );
-      defender.stats.mentalToughness -= 10; // Temporary mental toughness penalty
-    }
-  }
+  const fighter1Card = document.querySelector(`#${mike.id}`);
+  const fighter1CardTitle = fighter1Card!.querySelector("h1");
+  fighter1CardTitle!.textContent = mike.name;
+  updateFighterCard(mike);
 
-  if (attacker.traits.includes("Laughing Maniac")) {
-    if (Math.random() < 0.15) {
-      console.log(
-        colorize(
-          `${attacker.name} laughs uncontrollably, confusing ${defender.name}!`,
-          "202"
-        )
-      );
-      defender.stats.mentalToughness -= 5; // Slight mental toughness penalty
-    }
-  }
-};
+  const fighter2Card = document.querySelector(`#${floyd.id}`);
+  const fighter2CardTitle = fighter2Card!.querySelector("h1");
+  fighter2CardTitle!.textContent = floyd.name;
+  updateFighterCard(floyd);
 
-// Simulate a round of fighting
-const simulateFightRound = (fighterA: Fighter, fighterB: Fighter) => {
-  // Determine which fighter is taking the action (50% chance for either fighter)
-  const attacker = Math.random() > 0.5 ? fighterA : fighterB;
-  const defender = attacker === fighterA ? fighterB : fighterA;
+  const button = document.querySelector("#fight-button") as HTMLButtonElement;
 
-  // Apply fight style effects before the action
-  applyFightStyleEffect(attacker, defender);
-
-  // Simulate an action (strike, kick, takedown, etc.)
-  const actions = ["strike", "kick", "takedown", "clinch"];
-  const action = actions[Math.floor(Math.random() * actions.length)];
-
-  // Handle different actions
-  switch (action) {
-    case "strike":
-      console.log(colorize(`${attacker.name} throws a punch!`, "35"));
-      if (Math.random() < 0.7) {
-        console.log(colorize(`${attacker.name} lands the strike!`, "32"));
-        defender.stats.stamina -= 5; // Decrease stamina for the defender
-      } else {
-        console.log(colorize(`${attacker.name} misses the strike!`, "31"));
+  button!.addEventListener("click", () => {
+    if (isFightStarted) {
+      if (fightInterval) {
+        clearInterval(fightInterval);
       }
-      break;
 
-    case "kick":
-      console.log(colorize(`${attacker.name} throws a kick!`, "34"));
-      if (Math.random() < 0.6) {
-        console.log(colorize(`${attacker.name} lands the kick!`, "32"));
-        defender.stats.stamina -= 10; // Decrease stamina for the defender
+      button!.textContent = "Start Fight";
+    } else {
+      if (round > 1) {
+        addAnnouncement(`Round ${round} begins!`);
       } else {
-        console.log(colorize(`${attacker.name} misses the kick!`, "31"));
-      }
-      break;
-
-    case "takedown":
-      console.log(colorize(`${attacker.name} attempts a takedown!`, "36"));
-      if (Math.random() < 0.5) {
-        console.log(
-          colorize(
-            `${attacker.name} successfully takes down ${defender.name}!`,
-            "32"
-          )
-        );
-        defender.stats.stamina -= 15; // Heavy stamina penalty for being taken down
-      } else {
-        console.log(colorize(`${attacker.name} fails the takedown!`, "31"));
-      }
-      break;
-
-    case "clinch":
-      console.log(
-        colorize(`${attacker.name} pulls ${defender.name} into a clinch!`, "33")
-      );
-      if (Math.random() < 0.8) {
-        console.log(colorize(`${attacker.name} controls the clinch!`, "32"));
-        defender.stats.stamina -= 5; // Moderate stamina penalty for being in a clinch
-      } else {
-        console.log(
-          colorize(`${attacker.name} is unable to control the clinch!`, "31")
+        addAnnouncement(
+          `Today's fight is between <span class="text-blue-600">${mike.name}</span> and <span class="text-red-600">${floyd.name}</span>`
         );
       }
-      break;
+      addAnnouncement("", "spacer");
 
-    default:
-      console.log("Unknown action!");
-      break;
-  }
+      fightInterval = setInterval(() => {
+        // if fighter is knocked out, stop the fight
+        if (mike.inFight.health <= 0 || floyd.inFight.health <= 0) {
+          clearInterval(fightInterval!);
 
-  // Show current stats
-  console.log(
-    colorize(`${fighterA.name}'s stamina: ${fighterA.stats.stamina}`, "90")
-  );
-  console.log(
-    colorize(`${fighterB.name}'s stamina: ${fighterB.stats.stamina}`, "90")
-  );
-};
+          button!.disabled = true;
+          button!.textContent = "Fight over";
 
-// Simulate the fight in intervals
-const startFightSimulation = () => {
-  let round = 1;
-  const interval = setInterval(() => {
-    console.log(colorize(`\nRound ${round}...`, "96"));
-    simulateFightRound(fighters[0], fighters[1]);
-    round++;
+          addAnnouncement("The fight is over!");
+          return;
+        }
 
-    // End the fight if either fighter's stamina reaches 0
-    if (fighters[0].stats.stamina <= 0 || fighters[1].stats.stamina <= 0) {
-      console.log(colorize("\nFight over!", "31"));
-      clearInterval(interval);
+        if (roundClock > 0) {
+          roundClock--;
+          elapsedSeconds++;
+          updateRoundClock(roundClock);
+
+          if (elapsedSeconds % 3 === 0) {
+            fightSimulator(mike, floyd);
+          }
+        } else {
+          round++;
+          updateRound(round);
+
+          if (round >= maxRounds) {
+            clearInterval(fightInterval!);
+            button!.disabled = true;
+
+            updateRoundClock(roundClock);
+            addAnnouncement("The fight has gone the distance!");
+            addAnnouncement(
+              `Final Decision: ${
+                mike.inFight.health > floyd.inFight.health
+                  ? mike.name
+                  : floyd.name
+              } wins!`
+            );
+            return;
+          } else {
+            clearInterval(fightInterval!);
+            fightInterval = null;
+            isFightStarted = false;
+            button!.textContent = "Start Next Round";
+
+            addAnnouncement(`********* Round ${round} is over! *********`);
+            addAnnouncement("", "spacer");
+
+            // Increase the fighters' stamina
+            mike.inFight.stamina = mike.inFight.stamina + 10;
+            floyd.inFight.stamina = floyd.inFight.stamina + 10;
+
+            // Reset bleeding
+            mike.inFight.bleeding = 0;
+            floyd.inFight.bleeding = 0;
+          }
+
+          // Reset the round clock for the next round
+          roundClock = defaultRoundClock;
+          elapsedSeconds = 0;
+        }
+        // Check for knockout
+        if (mike.inFight.health <= 0 || floyd.inFight.health <= 0) {
+          clearInterval(fightInterval!);
+          button!.disabled = true;
+
+          const winner =
+            mike.inFight.health > floyd.inFight.health ? mike : floyd;
+          addAnnouncement(`The fight is over! ${winner.name} wins!`);
+        }
+      }, 1000);
+      button!.textContent = "Stop Fight";
     }
-  }, 2000); // Fight rounds run every 2 seconds
-};
 
-// Start the simulation
-startFightSimulation();
+    isFightStarted = !isFightStarted;
+  });
+});

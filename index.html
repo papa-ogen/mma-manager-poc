@@ -12,8 +12,39 @@
       rel="stylesheet"
     />
   </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
+  <body class="font-koulen">
+    <div class="p-8">
+      <h1 class="text-4xl text-center">MMA Manager</h1>
+      <header class="flex justify-center mt-8">
+        <h2>Round <span id="fight-round" class="text-red-800">1</span></h2>
+        <span class="mx-2">-</span>
+        <time id="fight-clock">0:00</time>
+      </header>
+      <div id="fight-container" class="flex justify-center mt-8 space-x-2">
+        <div id="fighter3" class="p-4 border border-blue-600 flex-1">
+          <h1 class="text-2xl">Fighter 1</h1>
+          <p id="fighter3-health">Health: <span></span></p>
+          <p id="fighter3-stamina">Stamina: <span></span></p>
+        </div>
+        <div
+          id="fight-monitor"
+          class="w-[600px] h-[600px] overflow-auto border border-gray-600 font-sans p-2"
+        ></div>
+        <div id="fighter4" class="p-4 border border-red-600 flex-1">
+          <h1 class="text-2xl">Fighter 2</h1>
+          <p id="fighter4-health">Health: <span></span></p>
+          <p id="fighter4-stamina">Stamina: <span></span></p>
+        </div>
+      </div>
+      <footer class="flex justify-center mt-8">
+        <button
+          id="fight-button"
+          class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded disabled:bg-gray-500"
+        >
+          Fight!
+        </button>
+      </footer>
+    </div>
+    <script type="module" src="/src/main.ts"></script>
   </body>
 </html>

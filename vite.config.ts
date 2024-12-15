@@ -7,4 +7,8 @@ export default defineConfig({
   server: {
     port: 3000,
   },
+  esbuild: {
+    jsxFactory: "html", // Use Lit's `html` as the JSX factory
+    jsxFragment: "html.Fragment", // For JSX fragments
+  },
 });
