@@ -1,7 +1,7 @@
 import { createActionsNarrative } from "./actions/createActionNarrative";
 import { actions as actionsData, fighters as fightersData } from "./data";
 import { setInitiative } from "./actions/setInitiative";
-import { IFighter } from "./type";
+import { IActionLog, IFighter } from "./type";
 import { generateAttacks } from "./actions/generateAttacks";
 import {
   addAnnouncement,
@@ -9,6 +9,7 @@ import {
   updateRound,
   updateRoundClock,
 } from "./helpers";
+import { analyzeRound } from "./actions/analyzeRound";
 
 const [mike, floyd] = fightersData;
 
@@ -19,6 +20,7 @@ let roundClock = defaultRoundClock;
 let round = 1;
 const maxRounds = 5; // Title bout
 let elapsedSeconds = 0;
+const actionLog: IActionLog[] = [];
 
 export const fightSimulator = (
   fighter1: IFighter,
@@ -40,6 +42,13 @@ export const fightSimulator = (
   }
 
   const actions = generateAttacks(attacker, defender, actionsData);
+
+  actionLog.push({
+    round,
+    time: elapsedSeconds,
+    action: actions,
+    attackerId: attacker.id,
+  });
 
   createActionsNarrative(attacker, defender, actions);
 };
@@ -124,6 +133,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
             addAnnouncement(`********* Round ${round} is over! *********`);
             addAnnouncement("", "spacer");
+
+            analyzeRound(actionLog, round, mike, floyd);
 
             // Increase the fighters' stamina
             mike.inFight.stamina = mike.inFight.stamina + 10;

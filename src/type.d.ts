@@ -110,6 +110,13 @@ export interface IAction {
   available_actions: MartialArtTechniqueType[];
 }
 
+export interface IActionLog {
+  round: number;
+  time: number;
+  action: IAttack[];
+  attackerId: string;
+}
+
 export interface IAttack {
   baseAction: MartialArtTechniqueType;
   action?: PunchType;
