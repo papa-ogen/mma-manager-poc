@@ -79,7 +79,9 @@ document.addEventListener("DOMContentLoaded", () => {
       button!.textContent = "Start Fight";
     } else {
       if (round > 1) {
+        addAnnouncement("", "spacer");
         addAnnouncement(`Round ${round} begins!`);
+        updateRound(round);
       } else {
         addAnnouncement(
           `Today's fight is between <span class="text-blue-600">${fighter1Data.firstName} ${fighter1Data.lastName}</span> and <span class="text-red-600">${fighter2Data.firstName} ${fighter2Data.lastName}</span>`,
@@ -113,7 +115,6 @@ document.addEventListener("DOMContentLoaded", () => {
           }
         } else {
           round++;
-          updateRound(round);
 
           if (round >= maxRounds) {
             clearInterval(fightInterval!);
@@ -135,7 +136,7 @@ document.addEventListener("DOMContentLoaded", () => {
             isFightStarted = false;
             button!.textContent = "Start Next Round";
 
-            addAnnouncement(`********* Round ${round} is over! *********`);
+            addAnnouncement(`********* Round ${round - 1} is over! *********`);
             addAnnouncement("", "spacer");
 
             analyzeRound(actionLog, round, fighter1Data, fighter2Data);
