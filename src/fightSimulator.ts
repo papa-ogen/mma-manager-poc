@@ -19,7 +19,7 @@ let fightInterval: ReturnType<typeof setInterval> | null = null;
 const defaultRoundClock = 10;
 let roundClock = defaultRoundClock;
 let round = 1;
-const maxRounds = 1; // Title bout
+const maxRounds = 3; // Title bout
 let elapsedSeconds = 0;
 const actionLog: IActionLog[] = [];
 
@@ -123,13 +123,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
             updateRoundClock(roundClock);
             addAnnouncement("The fight has gone the distance!");
-            addAnnouncement(
-              `Final Decision: ${
-                fighter1Data.inFight.health > fighter2Data.inFight.health
-                  ? fighter1Data.getFullName()
-                  : fighter2Data.getFullName()
-              } wins!`
-            );
+            // addAnnouncement(
+            //   `Final Decision: ${
+            //     fighter1Data.inFight.health > fighter2Data.inFight.health
+            //       ? fighter1Data.getFullName()
+            //       : fighter2Data.getFullName()
+            //   } wins!`
+            // );
 
             const fightDecision = getFightDecision(
               fighter1Data,
@@ -148,7 +148,8 @@ document.addEventListener("DOMContentLoaded", () => {
               fighter1Score > fighter2Score ? fighter1Data : fighter2Data;
 
             addAnnouncement(
-              `The fight is over! ${winner.firstName} ${winner.lastName} wins!`
+              `The fight is over! ${winner.firstName} ${winner.lastName} wins!`,
+              "big"
             );
 
             // display score per round

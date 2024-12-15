@@ -55,7 +55,7 @@ export const createActionsNarrative = (
           Math.random() * circlingVariants(attackerName, defenderName).length
         )
       ];
-      addAnnouncement(circlingVariant);
+      addAnnouncement(circlingVariant, "event");
 
       attacker.inFight.stamina += 5;
       break;
