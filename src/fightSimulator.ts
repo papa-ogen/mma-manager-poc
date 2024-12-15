@@ -1,293 +1,66 @@
-type MartialArtTechniqueType =
-  | "punch"
-  | "kick"
-  | "elbow"
-  | "knee"
-  | "takedown"
-  | "submission"
-  | "grappling"
-  | "clinch"
-  | "stomp"
-  | "ground and pound"
-  | "dirty boxing"
-  | "soccer kick"
-  | "upkick"
-  | "stand up"
-  | "disengage"
-  | "moving closer"
-  | "moving away";
-type PostureType = "standing" | "laying down" | "seated" | "crouching";
-type EngagementType =
-  | "grappling"
-  | "striking distance"
-  | "clinch"
-  | "distance"
-  | "start position";
-type StanceType = "orthodox" | "southpaw" | "all";
-type KickType =
-  | "front"
-  | "side"
-  | "roundhouse"
-  | "axe"
-  | "push"
-  | "crescent"
-  | "spinning"
-  | "back"
-  | "oblique"
-  | "flying"
-  | "jumping";
-type PunchType =
-  | "jab"
-  | "cross"
-  | "hook"
-  | "uppercut"
-  | "overhand"
-  | "backfist"
-  | "superman";
-type ElbowType =
-  | "horizontal"
-  | "vertical"
-  | "slashing"
-  | "upward"
-  | "back"
-  | "spinning";
-type KneeType = "straight" | "curving" | "flying" | "jumping";
-type GrapplingType =
-  | "single leg"
-  | "double leg"
-  | "body lock"
-  | "fireman's carry"
-  | "hip toss"
-  | "suplex"
-  | "arm drag"
-  | "bear hug"
-  | "clinch"
-  | "ground and pound";
-type SubmissionType =
-  | "armbar"
-  | "kimura"
-  | "triangle"
-  | "choke"
-  | "heel hook"
-  | "kneebar"
-  | "americana"
-  | "omoplata";
-interface IMartialArt {
-  name: string;
-  description: string;
-  techniques: MartialArtTechniqueType[];
-}
-interface IFighter {
-  name: string;
-  weightClass: string;
-  background: IMartialArt[];
-  posture: PostureType;
-  engagement: EngagementType;
-  stance: StanceType;
-  fightProperties: {
-    health: number;
-    stamina: number;
-    injury: string[];
-    initiative: boolean;
-  };
-}
+import { createActionsNarrative } from "./actions/createActionNarrative";
+import { actions as actionsData, fighters as fightersData } from "./data";
+import { setInitiative } from "./actions/setInitiative";
+import { IFighter } from "./type";
+import { generateAttacks } from "./actions/generateAttacks";
+import { addAnnouncement } from "./helpers";
 
-const muayThai: IMartialArt = {
-  name: "Muay Thai",
-  description: "Thai kickboxing",
-  techniques: ["punch", "kick", "elbow", "knee", "clinch"],
-};
+const [mike, floyd] = fightersData;
 
-const wrestling: IMartialArt = {
-  name: "Wrestling",
-  description: "American wrestling",
-  techniques: ["grappling", "takedown"],
-};
-
-const brazilianJiuJitsu: IMartialArt = {
-  name: "Brazilian Jiu-Jitsu",
-  description: "Ground fighting",
-  techniques: ["submission", "grappling"],
-};
-
-const boxing: IMartialArt = {
-  name: "Boxing",
-  description: "American boxing",
-  techniques: ["punch"],
-};
-
-interface IAction {
-  attacker_posture: PostureType;
-  defender_posture: PostureType;
-  available_actions: MartialArtTechniqueType[];
-}
-
-const actions: IAction[] = [
-  {
-    attacker_posture: "standing",
-    defender_posture: "standing",
-    available_actions: [
-      "punch",
-      "kick",
-      "elbow",
-      "knee",
-      "clinch",
-      "disengage",
-      "takedown",
-      "dirty boxing",
-    ],
-  },
-  {
-    attacker_posture: "standing",
-    defender_posture: "laying down",
-    available_actions: [
-      "stomp",
-      "soccer kick",
-      "ground and pound",
-      "submission",
-    ],
-  },
-  {
-    attacker_posture: "laying down",
-    defender_posture: "laying down",
-    available_actions: ["ground and pound", "submission", "stand up"],
-  },
-  {
-    attacker_posture: "laying down",
-    defender_posture: "standing",
-    available_actions: ["upkick", "submission", "stand up"],
-  },
-];
-
-const fighter1: IFighter = {
-  name: "Rodtang 'The Iron Man' Jitmuangnon",
-  weightClass: "Lightweight",
-  background: [muayThai, brazilianJiuJitsu],
-  posture: "standing",
-  engagement: "start position",
-  stance: "orthodox",
-  fightProperties: {
-    health: 100,
-    stamina: 100,
-    injury: [],
-    initiative: false,
-  },
-};
-
-const fighter2: IFighter = {
-  name: "Mike 'The Wrestler' Johnson",
-  weightClass: "Middleweight",
-  background: [boxing, wrestling],
-  posture: "standing",
-  engagement: "start position",
-  stance: "southpaw",
-  fightProperties: {
-    health: 100,
-    stamina: 100,
-    injury: [],
-    initiative: false,
-  },
-};
-
-// colorize the console output
-const colorize = (message: string, color: string): string => {
-  return `\x1b[${color}m${message}\x1b[0m`;
-};
+let isFightStarted = false;
+let fightInterval: ReturnType<typeof setInterval> | null = null;
 
 export const fightSimulator = (
   fighter1: IFighter,
   fighter2: IFighter
 ): void => {
-  let attacker = null;
-  let defender = null;
-
-  console.log(
-    colorize(
-      `Today's fight is between ${fighter1.name} and ${fighter2.name}`,
-      "32"
-    )
-  );
-  // First we need to determine initiative, 50 - 50 chance
-  const initiative = Math.random() > 0.5;
-  if (initiative) {
-    attacker = fighter1;
-    defender = fighter2;
-  } else {
-    attacker = fighter2;
-    defender = fighter1;
-  }
-
-  console.log(colorize(`${attacker.name} has the initiative`, "31"));
+  const [attacker, defender] = setInitiative(fighter1, fighter2);
 
   // determine action based on the engagement
-  if (attacker.engagement === "start position") {
-    // attacker is moving closer, update the engagement and console log
-    attacker.engagement = "striking distance";
-    console.log(
-      colorize(`${attacker.name} is moving closer to ${defender.name}`, "35")
+  if (attacker.inFight.engagement === "start position") {
+    attacker.inFight.engagement = "striking distance";
+    defender.inFight.engagement = "striking distance";
+
+    addAnnouncement(
+      `${attacker.name} is moving closer to ${defender.name}`,
+      "event"
     );
   }
 
-  // determine the action based on the posture
-  const availableActions = actions.find(
-    (action) =>
-      action.attacker_posture === attacker.posture &&
-      action.defender_posture === defender.posture
-  );
+  const actions = generateAttacks(attacker, defender, actionsData);
 
-  console.log(
-    colorize(
-      `Available actions: ${availableActions?.available_actions.join(", ")}`,
-      "33"
-    )
-  );
-
-  // determine prefered techniques based on the fighter's background
-  const preferredTechniques = attacker.background
-    .map((art) => art.techniques)
-    .flat();
-
-  console.log(
-    colorize(
-      `${attacker.name} prefers to use ${preferredTechniques.join(", ")}`,
-      "34"
-    )
-  );
-
-  // randomize the action based on the preferred techniques
-  const action =
-    preferredTechniques[Math.floor(Math.random() * preferredTechniques.length)];
-
-  console.log(colorize(`${attacker.name} will attempt to ${action}`, "36"));
-
-  // did it succeed?
-  const success = Math.random() > 0.5;
-  if (success) {
-    console.log(
-      colorize(`${attacker.name} successfully landed a ${action}`, "32")
-    );
-  } else {
-    console.log(colorize(`${attacker.name} missed the ${action}`, "31"));
-  }
-
-  // update the defender's health
-  defender.fightProperties.health -= 10;
-  // update attacker stamina
-  attacker.fightProperties.stamina -= 10;
-
-  // display fighters health and stamina
-  console.log(
-    colorize(
-      `${attacker.name} has ${attacker.fightProperties.health} health and ${attacker.fightProperties.stamina} stamina left`,
-      "33"
-    )
-  );
-  console.log(
-    colorize(
-      `${defender.name} has ${defender.fightProperties.health} health and ${defender.fightProperties.stamina} stamina left`,
-      "33"
-    )
-  );
+  createActionsNarrative(attacker, defender, actions);
 };
 
-fightSimulator(fighter1, fighter2);
+document.addEventListener("DOMContentLoaded", () => {
+  const fighter1Card = document.querySelector(`#${mike.id}`);
+  const fighter1CardTitle = fighter1Card!.querySelector("h1");
+  fighter1CardTitle!.textContent = mike.name;
+
+  const fighter2Card = document.querySelector(`#${floyd.id}`);
+  const fighter2CardTitle = fighter2Card!.querySelector("h1");
+  fighter2CardTitle!.textContent = floyd.name;
+
+  const button = document.querySelector("#fight-button");
+
+  button!.addEventListener("click", () => {
+    if (isFightStarted) {
+      if (fightInterval) {
+        clearInterval(fightInterval);
+      }
+
+      button!.textContent = "Start Fight";
+    } else {
+      addAnnouncement(
+        `Today's fight is between <span class="text-blue-600">${mike.name}</span> and <span class="text-red-600">${floyd.name}</span>`
+      );
+
+      fightInterval = setInterval(() => {
+        fightSimulator(mike, floyd);
+      }, 3000);
+      button!.textContent = "Stop Fight";
+    }
+
+    isFightStarted = !isFightStarted;
+  });
+});
