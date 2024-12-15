@@ -11,6 +11,8 @@ export const addAnnouncement = (
   }
 
   const newEvent = document.createElement("p");
+  newEvent.classList.add("text-sm");
+  newEvent.classList.add("min-h-4");
 
   switch (announcementType) {
     case "fight":
@@ -22,6 +24,15 @@ export const addAnnouncement = (
     case "info":
       newEvent.classList.add("text-blue-600");
       break;
+    case "spacer":
+      newEvent.classList.add("text-gray-400");
+      break;
+    case "big":
+      newEvent.classList.add("text-2xl");
+      newEvent.classList.add("text-center");
+      newEvent.classList.add("font-bold");
+      newEvent.classList.add("text-red-600");
+      break;
     default:
       newEvent.classList.add("text-gray-600");
   }
@@ -29,6 +40,12 @@ export const addAnnouncement = (
   newEvent.innerHTML = announcement;
 
   fightMonitor.appendChild(newEvent);
+
+  const autoScroll = () => {
+    fightMonitor!.scrollTop = fightMonitor!.scrollHeight;
+  };
+
+  autoScroll();
 };
 
 export const updateFighterCard = (fighter: IFighter) => {

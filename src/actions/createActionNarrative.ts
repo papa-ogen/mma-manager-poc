@@ -29,22 +29,56 @@ export const createActionsNarrative = (
       attacker.inFight.stamina -= 10;
 
       addAnnouncement(
-        `${attacker.name} successfully landed the ${baseAction}`,
+        `${attacker.name} successfully landed the ${baseAction} - ${damage}`,
         "fight"
       );
+
+      addAnnouncement("", "spacer");
+
+      if (defender.inFight.health <= 0) {
+        addAnnouncement(`${defender.name} has been defeated!`, "big");
+        break;
+      } else if (defender.inFight.health < 20) {
+        addAnnouncement(
+          `${defender.name} is in a critical condition!`,
+          "event"
+        );
+      } else if (defender.inFight.health < 50) {
+        addAnnouncement(`${defender.name} is hurt!`, "event");
+      }
     } else {
-      // 50 / 50 if block or dodge
-      const blocked = Math.random() > 0.5;
-      if (blocked) {
-        addAnnouncement(`${defender.name} blocked the ${baseAction}`, "info");
-      } else {
-        addAnnouncement(`${attacker.name} missed the ${baseAction}`, "info");
+      const blockAction = ["block", "dodge", "miss"];
+      const blocked = blockAction[Math.floor(Math.random() * 3)];
+
+      attacker.inFight.stamina -= 5;
+
+      switch (blocked) {
+        case "block":
+          addAnnouncement(`${defender.name} blocked the ${baseAction}`, "info");
+          break;
+        case "dodge":
+          addAnnouncement(`${defender.name} dodged the ${baseAction}`, "info");
+          break;
+        default:
+          addAnnouncement(`${attacker.name} missed the ${baseAction}`, "info");
+          break;
       }
     }
 
-    // display fighters health and stamina
-    updateFighterCard(attacker);
+    // if attacker stamina
+    if (attacker.inFight.stamina <= 0) {
+      addAnnouncement(`${attacker.name} is out of stamina!`, "event");
+      break;
+    } else if (attacker.inFight.stamina < 20) {
+      addAnnouncement(`${attacker.name} is tired!`, "event");
+    } else if (attacker.inFight.stamina < 50) {
+      addAnnouncement(`${attacker.name} is getting tired!`, "event");
+    }
 
+    addAnnouncement("", "spacer");
+
+    // update fighters health and stamina
+    updateFighterCard(attacker);
     updateFighterCard(defender);
   }
 };

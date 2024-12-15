@@ -90,7 +90,8 @@ export interface IFighter {
     reach: number;
     speed: number;
     strength: number;
-    cardio: number;
+    stamina: number;
+    health: number;
   };
   inFight: {
     initiative: boolean;
@@ -122,4 +123,4 @@ declare global {
   }
 }
 
-export type AnnouncementType = "fight" | "event" | "info";
+export type AnnouncementType = "fight" | "event" | "info" | "spacer" | "big";
