@@ -18,6 +18,12 @@ import { IAction, IFighter, IMartialArt } from "./type";
 //   techniques: ["submission", "grappling"],
 // };
 
+const streetFighting: IMartialArt = {
+  name: "Street Fighting",
+  description: "Street fighting",
+  techniques: ["punch", "kick", "elbow", "knee", "clinch", "dirty boxing"],
+};
+
 const boxing: IMartialArt = {
   name: "Boxing",
   description: "American boxing",
@@ -61,9 +67,10 @@ export const actions: IAction[] = [
   },
 ];
 
-const fighter3: IFighter = {
+const fighter1: IFighter = {
   id: "fighter3",
-  name: "Mike Tyson",
+  firstName: "Mike",
+  lastName: "Tyson",
   nickName: "Iron Mike",
   background: [boxing],
   physical: {
@@ -85,11 +92,19 @@ const fighter3: IFighter = {
     engagement: "start position",
     stance: "orthodox",
   },
+  getFullName(withNickname = false) {
+    if (!withNickname) {
+      return `${this.firstName} ${this.lastName}`;
+    }
+
+    return `${this.firstName} "${this.nickName}" ${this.lastName}`;
+  },
 };
 
-const fighter4: IFighter = {
+const fighter2: IFighter = {
   id: "fighter4",
-  name: "Floyd Mayweather",
+  firstName: "Floyd",
+  lastName: "Mayweather",
   nickName: "Money",
   background: [boxing],
   physical: {
@@ -111,6 +126,48 @@ const fighter4: IFighter = {
     engagement: "start position",
     stance: "orthodox",
   },
+  getFullName(withNickname = false) {
+    if (!withNickname) {
+      return `${this.firstName} ${this.lastName}`;
+    }
+
+    return `${this.firstName} "${this.nickName}" ${this.lastName}`;
+  },
 };
 
-export const fighters: IFighter[] = [fighter3, fighter4];
+// Simon The Savage Henriksen
+const fighter3: IFighter = {
+  id: "fighter5",
+  firstName: "Simon",
+  lastName: "Henriksen",
+  nickName: "The Savage",
+  background: [streetFighting],
+  physical: {
+    age: 30,
+    height: 180,
+    weight: 90,
+    reach: 180,
+    speed: 80,
+    strength: 80,
+    stamina: 80,
+    health: 100,
+  },
+  inFight: {
+    stamina: 80,
+    health: 100,
+    initiative: false,
+    bleeding: 0,
+    posture: "standing",
+    engagement: "start position",
+    stance: "orthodox",
+  },
+  getFullName(withNickname = false) {
+    if (!withNickname) {
+      return `${this.firstName} ${this.lastName}`;
+    }
+
+    return `${this.firstName} "${this.nickName}" ${this.lastName}`;
+  },
+};
+
+export const fighters: IFighter[] = [fighter1, fighter2, fighter3];

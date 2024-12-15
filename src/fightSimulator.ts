@@ -11,7 +11,7 @@ import {
 } from "./helpers";
 import { analyzeRound } from "./actions/analyzeRound";
 
-const [mike, floyd] = fightersData;
+const [fighter1Data, fighter2Data] = fightersData;
 
 let isFightStarted = false;
 let fightInterval: ReturnType<typeof setInterval> | null = null;
@@ -34,7 +34,7 @@ export const fightSimulator = (
     defender.inFight.engagement = "striking distance";
 
     addAnnouncement(
-      `${attacker.name} is moving closer to ${defender.name}`,
+      `${attacker.firstName} is moving closer to ${defender.firstName}`,
       "event"
     );
 
@@ -58,15 +58,15 @@ document.addEventListener("DOMContentLoaded", () => {
   updateRoundClock(roundClock);
   updateRound(round);
 
-  const fighter1Card = document.querySelector(`#${mike.id}`);
+  const fighter1Card = document.querySelector(`#${fighter1Data.id}`);
   const fighter1CardTitle = fighter1Card!.querySelector("h1");
-  fighter1CardTitle!.textContent = mike.name;
-  updateFighterCard(mike);
+  fighter1CardTitle!.textContent = fighter1Data.getFullName(true);
+  updateFighterCard(fighter1Data);
 
-  const fighter2Card = document.querySelector(`#${floyd.id}`);
+  const fighter2Card = document.querySelector(`#${fighter2Data.id}`);
   const fighter2CardTitle = fighter2Card!.querySelector("h1");
-  fighter2CardTitle!.textContent = floyd.name;
-  updateFighterCard(floyd);
+  fighter2CardTitle!.textContent = fighter2Data.getFullName(true);
+  updateFighterCard(fighter2Data);
 
   const button = document.querySelector("#fight-button") as HTMLButtonElement;
 
@@ -82,14 +82,18 @@ document.addEventListener("DOMContentLoaded", () => {
         addAnnouncement(`Round ${round} begins!`);
       } else {
         addAnnouncement(
-          `Today's fight is between <span class="text-blue-600">${mike.name}</span> and <span class="text-red-600">${floyd.name}</span>`
+          `Today's fight is between <span class="text-blue-600">${fighter1Data.firstName} ${fighter1Data.lastName}</span> and <span class="text-red-600">${fighter2Data.firstName} ${fighter2Data.lastName}</span>`,
+          "narrative"
         );
       }
       addAnnouncement("", "spacer");
 
       fightInterval = setInterval(() => {
         // if fighter is knocked out, stop the fight
-        if (mike.inFight.health <= 0 || floyd.inFight.health <= 0) {
+        if (
+          fighter1Data.inFight.health <= 0 ||
+          fighter2Data.inFight.health <= 0
+        ) {
           clearInterval(fightInterval!);
 
           button!.disabled = true;
@@ -105,7 +109,7 @@ document.addEventListener("DOMContentLoaded", () => {
           updateRoundClock(roundClock);
 
           if (elapsedSeconds % 3 === 0) {
-            fightSimulator(mike, floyd);
+            fightSimulator(fighter1Data, fighter2Data);
           }
         } else {
           round++;
@@ -119,9 +123,9 @@ document.addEventListener("DOMContentLoaded", () => {
             addAnnouncement("The fight has gone the distance!");
             addAnnouncement(
               `Final Decision: ${
-                mike.inFight.health > floyd.inFight.health
-                  ? mike.name
-                  : floyd.name
+                fighter1Data.inFight.health > fighter2Data.inFight.health
+                  ? fighter1Data.getFullName()
+                  : fighter2Data.getFullName()
               } wins!`
             );
             return;
@@ -134,15 +138,15 @@ document.addEventListener("DOMContentLoaded", () => {
             addAnnouncement(`********* Round ${round} is over! *********`);
             addAnnouncement("", "spacer");
 
-            analyzeRound(actionLog, round, mike, floyd);
+            analyzeRound(actionLog, round, fighter1Data, fighter2Data);
 
             // Increase the fighters' stamina
-            mike.inFight.stamina = mike.inFight.stamina + 10;
-            floyd.inFight.stamina = floyd.inFight.stamina + 10;
+            fighter1Data.inFight.stamina = fighter1Data.inFight.stamina + 10;
+            fighter2Data.inFight.stamina = fighter2Data.inFight.stamina + 10;
 
             // Reset bleeding
-            mike.inFight.bleeding = 0;
-            floyd.inFight.bleeding = 0;
+            fighter1Data.inFight.bleeding = 0;
+            fighter2Data.inFight.bleeding = 0;
           }
 
           // Reset the round clock for the next round
@@ -150,13 +154,20 @@ document.addEventListener("DOMContentLoaded", () => {
           elapsedSeconds = 0;
         }
         // Check for knockout
-        if (mike.inFight.health <= 0 || floyd.inFight.health <= 0) {
+        if (
+          fighter1Data.inFight.health <= 0 ||
+          fighter2Data.inFight.health <= 0
+        ) {
           clearInterval(fightInterval!);
           button!.disabled = true;
 
           const winner =
-            mike.inFight.health > floyd.inFight.health ? mike : floyd;
-          addAnnouncement(`The fight is over! ${winner.name} wins!`);
+            fighter1Data.inFight.health > fighter2Data.inFight.health
+              ? fighter1Data
+              : fighter2Data;
+          addAnnouncement(
+            `The fight is over! ${winner.firstName} ${winner.lastName} wins!`
+          );
         }
       }, 1000);
       button!.textContent = "Stop Fight";

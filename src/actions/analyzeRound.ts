@@ -55,25 +55,36 @@ export const analyzeRound = (
   // narration
   if (mostDamage.id === mostSuccess.id) {
     addAnnouncement(
-      `Very exiting round! ${mostDamage.name} dealt the a lot of damage in the round and landed most shots.`
+      `Very exiting round! ${mostDamage.getFullName()} dealt the a lot of damage in the round and landed most shots.`,
+      "narrative"
     );
   } else {
     addAnnouncement(
-      `Very exiting round! ${mostDamage.name} dealt more damage in the round but ${mostSuccess.name} landed the most shots.`
+      `Very exiting round! ${mostDamage.getFullName()} dealt more damage in the round but ${mostSuccess.getFullName()} landed the most shots.`,
+      "narrative"
     );
   }
 
   addAnnouncement(
-    `${leastStamina.name} is breathing heavily, while ${mostStamina.name} is still looking strong.`
+    `${leastStamina.getFullName()} is breathing heavily, while ${mostStamina.getFullName()} is still looking strong.`,
+    "narrative"
   );
 
   if (leastHealth.inFight.health <= 80) {
-    addAnnouncement(`${leastHealth.name} have a few bruises.`);
+    addAnnouncement(
+      `${leastHealth.getFullName()} have a few bruises.`,
+      "narrative"
+    );
   }
 
   if (mostHealth.inFight.health >= 90 && mostHealth.inFight.stamina > 80) {
     addAnnouncement(
-      `${mostHealth.name} is looking fresh and ready for the next round.`
+      `${mostHealth.getFullName()} is looking fresh and ready for the next round.`,
+      "narrative"
     );
+  }
+
+  if (mostStamina.inFight.stamina <= 50 && leastStamina.inFight.stamina <= 50) {
+    addAnnouncement(`Both fighters is looking tired.`, "narrative");
   }
 };

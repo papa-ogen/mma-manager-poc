@@ -80,7 +80,8 @@ export interface IMartialArt {
 }
 export interface IFighter {
   id: string;
-  name: string;
+  firstName: string;
+  lastName: string;
   nickName?: string;
   background: IMartialArt[];
   physical: {
@@ -102,6 +103,7 @@ export interface IFighter {
     stamina: number;
     bleeding: number;
   };
+  getFullName: (withNickname?: boolean) => string;
 }
 
 export interface IAction {
@@ -130,4 +132,10 @@ declare global {
   }
 }
 
-export type AnnouncementType = "fight" | "event" | "info" | "spacer" | "big";
+export type AnnouncementType =
+  | "fight"
+  | "event"
+  | "info"
+  | "spacer"
+  | "big"
+  | "narrative";

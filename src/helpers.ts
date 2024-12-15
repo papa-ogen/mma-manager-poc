@@ -33,6 +33,10 @@ export const addAnnouncement = (
       newEvent.classList.add("font-bold");
       newEvent.classList.add("text-red-600");
       break;
+    case "narrative":
+      newEvent.classList.add("italic");
+      newEvent.classList.add("text-gray-600");
+      break;
     default:
       newEvent.classList.add("text-gray-600");
   }

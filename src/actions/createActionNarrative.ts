@@ -1,39 +1,39 @@
 import { addAnnouncement, updateFighterCard } from "../helpers";
 import { IAttack, IFighter, PunchType } from "../type";
 
-const circlingVariants = (attacker: IFighter, defender: IFighter) => {
+const circlingVariants = (attackerName: string, defenderName: string) => {
   return [
-    `${attacker.name} feints a jab as they circle ${defender.name}, trying to find an opening.`,
-    `${attacker.name} moves laterally around ${defender.name}, studying their movements for a weak spot.`,
-    `With quick footwork, ${attacker.name} circles ${defender.name}, waiting for the perfect moment to strike.`,
-    `${attacker.name} shifts their weight as they circle ${defender.name}, gauging their distance carefully.`,
-    `Staying light on their feet, ${attacker.name} tests ${defender.name}'s defenses while circling.`,
-    `${attacker.name} paces around ${defender.name}, throwing the occasional feint to create an opening.`,
-    `Eyes locked on their opponent, ${attacker.name} moves side-to-side, looking for a chance to attack ${defender.name}.`,
-    `Keeping their guard up, ${attacker.name} circles ${defender.name}, probing for a moment of vulnerability.`,
-    `${attacker.name} weaves in and out of range as they circle ${defender.name}, ready to exploit any mistake.`,
-    `Focused and methodical, ${attacker.name} circles ${defender.name}, setting up their next move.`,
-    `Referee breaks the fighters apart, ${attacker.name} circles ${defender.name}, looking for an opening.`,
+    `${attackerName} feints a jab as they circle ${defenderName}, trying to find an opening.`,
+    `${attackerName} moves laterally around ${defenderName}, studying their movements for a weak spot.`,
+    `With quick footwork, ${attackerName} circles ${defenderName}, waiting for the perfect moment to strike.`,
+    `${attackerName} shifts their weight as they circle ${defenderName}, gauging their distance carefully.`,
+    `Staying light on their feet, ${attackerName} tests ${defenderName}'s defenses while circling.`,
+    `${attackerName} paces around ${defenderName}, throwing the occasional feint to create an opening.`,
+    `Eyes locked on their opponent, ${attackerName} moves side-to-side, looking for a chance to attack ${defenderName}.`,
+    `Keeping their guard up, ${attackerName} circles ${defenderName}, probing for a moment of vulnerability.`,
+    `${attackerName} weaves in and out of range as they circle ${defenderName}, ready to exploit any mistake.`,
+    `Focused and methodical, ${attackerName} circles ${defenderName}, setting up their next move.`,
+    `Referee breaks the fighters apart, ${attackerName} circles ${defenderName}, looking for an opening.`,
     `Referee gives the fighters a warning.`,
   ];
 };
 
 const attackVariants = (
-  attacker: IFighter,
-  defender: IFighter,
+  attackerName: string,
+  defenderName: string,
   action: PunchType
 ) => {
   return [
-    `${attacker.name} is gearing up to throw a ${action}.`,
-    `${attacker.name} sets up to deliver a ${action}.`,
-    `With precision, ${attacker.name} plans to unleash a ${action}.`,
-    `${attacker.name} readies themselves for a ${action} attempt.`,
-    `Looking for an opening, ${attacker.name} prepares to execute a ${action}.`,
-    `${attacker.name} winds up, aiming to throw a ${action}.`,
-    `${attacker.name} focuses and prepares a sharp ${action}.`,
-    `Confidently, ${attacker.name} steps in to attempt a ${action}.`,
-    `${attacker.name} positions themselves for a powerful ${action}.`,
-    `Eyes locked on ${defender.name}, ${attacker.name} moves to throw a ${action}.`,
+    `${attackerName} is gearing up to throw a ${action}.`,
+    `${attackerName} sets up to deliver a ${action}.`,
+    `With precision, ${attackerName} plans to unleash a ${action}.`,
+    `${attackerName} readies themselves for a ${action} attempt.`,
+    `Looking for an opening, ${attackerName} prepares to execute a ${action}.`,
+    `${attackerName} winds up, aiming to throw a ${action}.`,
+    `${attackerName} focuses and prepares a sharp ${action}.`,
+    `Confidently, ${attackerName} steps in to attempt a ${action}.`,
+    `${attackerName} positions themselves for a powerful ${action}.`,
+    `Eyes locked on ${defenderName}, ${attackerName} moves to throw a ${action}.`,
   ];
 };
 
@@ -42,13 +42,18 @@ export const createActionsNarrative = (
   defender: IFighter,
   attacks: IAttack[]
 ) => {
+  const attackerName = `${attacker.firstName} ${attacker.lastName}`;
+  const defenderName = `${defender.firstName} ${defender.lastName}`;
+
   // iterate over the attacks
   for (const attack of attacks) {
     const { baseAction, action, damage, success } = attack;
     if (baseAction === "circling") {
       // pick random circling variant
-      const circlingVariant = circlingVariants(attacker, defender)[
-        Math.floor(Math.random() * circlingVariants(attacker, defender).length)
+      const circlingVariant = circlingVariants(attackerName, defenderName)[
+        Math.floor(
+          Math.random() * circlingVariants(attackerName, defenderName).length
+        )
       ];
       addAnnouncement(circlingVariant);
 
@@ -58,9 +63,10 @@ export const createActionsNarrative = (
 
     if (!action) return;
 
-    const attackVariant = attackVariants(attacker, defender, action)[
+    const attackVariant = attackVariants(attackerName, defenderName, action)[
       Math.floor(
-        Math.random() * attackVariants(attacker, defender, action).length
+        Math.random() *
+          attackVariants(attackerName, defenderName, action).length
       )
     ];
 
@@ -81,7 +87,7 @@ export const createActionsNarrative = (
       attacker.inFight.stamina -= 10;
 
       addAnnouncement(
-        `${attacker.name} successfully landed the ${baseAction}`,
+        `${attackerName} successfully landed the ${baseAction}`,
         "fight"
       );
 
@@ -91,12 +97,9 @@ export const createActionsNarrative = (
         addAnnouncement(`WHAT A KNOCKOUT!`, "big");
         break;
       } else if (defender.inFight.health < 20) {
-        addAnnouncement(
-          `${defender.name} is in a critical condition!`,
-          "event"
-        );
+        addAnnouncement(`${defenderName} is in a critical condition!`, "event");
       } else if (defender.inFight.health < 50) {
-        addAnnouncement(`${defender.name} is hurt!`, "event");
+        addAnnouncement(`${defenderName} is hurt!`, "event");
       }
     } else {
       const blockAction = ["block", "dodge", "miss"];
@@ -106,25 +109,25 @@ export const createActionsNarrative = (
 
       switch (blocked) {
         case "block":
-          addAnnouncement(`${defender.name} blocked the ${baseAction}`, "info");
+          addAnnouncement(`${defenderName} blocked the ${baseAction}`, "info");
           break;
         case "dodge":
-          addAnnouncement(`${defender.name} dodged the ${baseAction}`, "info");
+          addAnnouncement(`${defenderName} dodged the ${baseAction}`, "info");
           break;
         default:
-          addAnnouncement(`${attacker.name} missed the ${baseAction}`, "info");
+          addAnnouncement(`${attackerName} missed the ${baseAction}`, "info");
           break;
       }
     }
 
     // if attacker stamina
     if (attacker.inFight.stamina <= 0) {
-      addAnnouncement(`${attacker.name} is out of stamina!`, "event");
+      addAnnouncement(`${attackerName} is out of stamina!`, "event");
       break;
     } else if (attacker.inFight.stamina < 20) {
-      addAnnouncement(`${attacker.name} is tired!`, "event");
+      addAnnouncement(`${attackerName} is tired!`, "event");
     } else if (attacker.inFight.stamina < 50) {
-      addAnnouncement(`${attacker.name} is getting tired!`, "event");
+      addAnnouncement(`${attackerName} is getting tired!`, "event");
     }
 
     addAnnouncement("", "spacer");
