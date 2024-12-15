@@ -14,7 +14,8 @@ const [mike, floyd] = fightersData;
 
 let isFightStarted = false;
 let fightInterval: ReturnType<typeof setInterval> | null = null;
-let roundClock = 300;
+const defaultRoundClock = 10;
+let roundClock = defaultRoundClock;
 let round = 1;
 const maxRounds = 5; // Title bout
 let elapsedSeconds = 0;
@@ -68,10 +69,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
       button!.textContent = "Start Fight";
     } else {
-      addAnnouncement(
-        `Today's fight is between <span class="text-blue-600">${mike.name}</span> and <span class="text-red-600">${floyd.name}</span>`
-      );
-
+      if (round > 1) {
+        addAnnouncement(`Round ${round} begins!`);
+      } else {
+        addAnnouncement(
+          `Today's fight is between <span class="text-blue-600">${mike.name}</span> and <span class="text-red-600">${floyd.name}</span>`
+        );
+      }
       addAnnouncement("", "spacer");
 
       fightInterval = setInterval(() => {
@@ -80,6 +84,7 @@ document.addEventListener("DOMContentLoaded", () => {
           clearInterval(fightInterval!);
 
           button!.disabled = true;
+          button!.textContent = "Fight over";
 
           addAnnouncement("The fight is over!");
           return;
@@ -95,7 +100,9 @@ document.addEventListener("DOMContentLoaded", () => {
           }
         } else {
           round++;
-          if (round > maxRounds) {
+          updateRound(round);
+
+          if (round >= maxRounds) {
             clearInterval(fightInterval!);
             button!.disabled = true;
 
@@ -109,12 +116,27 @@ document.addEventListener("DOMContentLoaded", () => {
               } wins!`
             );
             return;
+          } else {
+            clearInterval(fightInterval!);
+            fightInterval = null;
+            isFightStarted = false;
+            button!.textContent = "Start Next Round";
+
+            addAnnouncement(`********* Round ${round} is over! *********`);
+            addAnnouncement("", "spacer");
+
+            // Increase the fighters' stamina
+            mike.inFight.stamina = mike.inFight.stamina + 10;
+            floyd.inFight.stamina = floyd.inFight.stamina + 10;
+
+            // Reset bleeding
+            mike.inFight.bleeding = 0;
+            floyd.inFight.bleeding = 0;
           }
 
           // Reset the round clock for the next round
-          roundClock = 300;
+          roundClock = defaultRoundClock;
           elapsedSeconds = 0;
-          addAnnouncement(`Round ${round} begins!`);
         }
         // Check for knockout
         if (mike.inFight.health <= 0 || floyd.inFight.health <= 0) {
