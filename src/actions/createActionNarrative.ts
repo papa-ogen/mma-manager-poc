@@ -1,5 +1,5 @@
 import { addAnnouncement, updateFighterCard } from "../helpers";
-import { IAttack, IFighter, PunchType } from "../type";
+import { AttackActionType, IAttack, IFighter } from "../type";
 
 const circlingVariants = (attackerName: string, defenderName: string) => {
   return [
@@ -21,7 +21,7 @@ const circlingVariants = (attackerName: string, defenderName: string) => {
 const attackVariants = (
   attackerName: string,
   defenderName: string,
-  action: PunchType
+  action: AttackActionType
 ) => {
   return [
     `${attackerName} is gearing up to throw a ${action}.`,

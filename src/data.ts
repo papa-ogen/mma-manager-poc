@@ -137,7 +137,7 @@ const fighter2: IFighter = {
 
 // Simon The Savage Henriksen
 const fighter3: IFighter = {
-  id: "fighter5",
+  id: "fighter4",
   firstName: "Simon",
   lastName: "Henriksen",
   nickName: "The Savage",
@@ -170,4 +170,4 @@ const fighter3: IFighter = {
   },
 };
 
-export const fighters: IFighter[] = [fighter1, fighter2, fighter3];
+export const fighters: IFighter[] = [fighter1, fighter3];

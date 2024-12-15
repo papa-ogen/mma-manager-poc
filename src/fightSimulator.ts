@@ -5,6 +5,7 @@ import { IActionLog, IFighter } from "./type";
 import { generateAttacks } from "./actions/generateAttacks";
 import {
   addAnnouncement,
+  getFightDecision,
   updateFighterCard,
   updateRound,
   updateRoundClock,
@@ -18,7 +19,7 @@ let fightInterval: ReturnType<typeof setInterval> | null = null;
 const defaultRoundClock = 10;
 let roundClock = defaultRoundClock;
 let round = 1;
-const maxRounds = 5; // Title bout
+const maxRounds = 1; // Title bout
 let elapsedSeconds = 0;
 const actionLog: IActionLog[] = [];
 
@@ -116,7 +117,7 @@ document.addEventListener("DOMContentLoaded", () => {
         } else {
           round++;
 
-          if (round >= maxRounds) {
+          if (round > maxRounds) {
             clearInterval(fightInterval!);
             button!.disabled = true;
 
@@ -129,6 +130,36 @@ document.addEventListener("DOMContentLoaded", () => {
                   : fighter2Data.getFullName()
               } wins!`
             );
+
+            const fightDecision = getFightDecision(
+              fighter1Data,
+              fighter2Data,
+              actionLog
+            );
+            const fighter1Score = fightDecision.reduce((acc, decision) => {
+              return acc + (decision.scoreFighter1 ? 1 : 0);
+            }, 0);
+
+            const fighter2Score = fightDecision.reduce((acc, decision) => {
+              return acc + (decision.scoreFighter2 ? 1 : 0);
+            }, 0);
+
+            const winner =
+              fighter1Score > fighter2Score ? fighter1Data : fighter2Data;
+
+            addAnnouncement(
+              `The fight is over! ${winner.firstName} ${winner.lastName} wins!`
+            );
+
+            // display score per round
+            // fightDecision.forEach((decision) => {
+            //   addAnnouncement(
+            //     `Round ${decision.round}: ${fighter1Data.getFullName()} ${
+            //       decision.scoreFighter1
+            //     } - ${fighter2Data.getFullName()} ${decision.scoreFighter2}`
+            //   );
+            // });
+
             return;
           } else {
             clearInterval(fightInterval!);
@@ -166,6 +197,7 @@ document.addEventListener("DOMContentLoaded", () => {
             fighter1Data.inFight.health > fighter2Data.inFight.health
               ? fighter1Data
               : fighter2Data;
+
           addAnnouncement(
             `The fight is over! ${winner.firstName} ${winner.lastName} wins!`
           );

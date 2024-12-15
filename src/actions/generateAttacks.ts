@@ -1,4 +1,5 @@
 import { IAction, IAttack, IFighter } from "../type";
+import { kickFactory } from "./kickFactory";
 import { punchFactory } from "./punchFactory";
 
 export const generateAttacks = (
@@ -30,9 +31,16 @@ export const generateAttacks = (
     action = "circling";
   }
 
+  // TODO: ["kick", "elbow", "knee", "clinch", "dirty boxing"],
   switch (action) {
     case "punch":
       return punchFactory(attacker, defender, action);
+    case "kick":
+      return kickFactory(attacker, defender, action);
+    case "elbow":
+      return [{ baseAction: "elbow" }];
+    case "knee":
+      return [{ baseAction: "knee" }];
     default:
       return [{ baseAction: "circling" }];
   }

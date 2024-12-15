@@ -119,9 +119,15 @@ export interface IActionLog {
   attackerId: string;
 }
 
+export type AttackActionType =
+  | PunchType
+  | KickType
+  | ElbowType
+  | KneeType
+  | GrapplingType;
 export interface IAttack {
   baseAction: MartialArtTechniqueType;
-  action?: PunchType;
+  action?: AttackActionType;
   success?: boolean;
   damage?: number;
 }
@@ -139,3 +145,9 @@ export type AnnouncementType =
   | "spacer"
   | "big"
   | "narrative";
+
+export interface IFightDecision {
+  round: number;
+  scoreFighter1: number;
+  scoreFighter2: number;
+}

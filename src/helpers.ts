@@ -1,4 +1,4 @@
-import { AnnouncementType, IFighter } from "./type";
+import { AnnouncementType, IActionLog, IFightDecision, IFighter } from "./type";
 
 export const addAnnouncement = (
   announcement: string,
@@ -76,4 +76,62 @@ export const updateRoundClock = (roundClock: number) => {
   // 2 leading zeros on seconds
   const seconds = `0${roundClock % 60}`.slice(-2);
   roundClockElement!.textContent = `${minutes}:${seconds}`;
+};
+
+export const getFightDecision = (
+  fighter1: IFighter,
+  fighter2: IFighter,
+  actionLog: IActionLog[]
+): IFightDecision[] => {
+  const fightDecisions: IFightDecision[] = [];
+
+  const scoreFighter1 = 0;
+  const scoreFighter2 = 0;
+
+  // Summarize and filter log first
+  for (let i = 0; i < actionLog.length; i++) {
+    const log = actionLog[i];
+    const round = log.round;
+
+    const roundLogsFighter1 = actionLog
+      .filter((log) => log.round === round)
+      .filter((log) => log.attackerId === fighter1.id);
+    const roundLogsFighter2 = actionLog
+      .filter((log) => log.round === round)
+      .filter((log) => log.attackerId === fighter2.id);
+
+    const fighter1Damage = roundLogsFighter1.reduce((acc, log) => {
+      if (!log.action[0].damage) return acc;
+      return acc + log.action[0].damage;
+    }, 0);
+
+    const fighter2Damage = roundLogsFighter2.reduce((acc, log) => {
+      if (!log.action[0].damage) return acc;
+      return acc + log.action[0].damage;
+    }, 0);
+
+    const fighter1Success = roundLogsFighter1.reduce((acc, log) => {
+      return acc + (log.action[0].success ? 1 : 0);
+    }, 0);
+
+    const fighter2Success = roundLogsFighter2.reduce((acc, log) => {
+      return acc + (log.action[0].success ? 1 : 0);
+    }, 0);
+
+    // fighter with the most damaga
+    const mostDamage = fighter1Damage > fighter2Damage ? fighter1 : fighter2;
+
+    // fighter with the most success
+    const mostSuccess = fighter1Success > fighter2Success ? fighter1 : fighter2;
+
+    // TODO: Refine the scoring system
+
+    fightDecisions.push({
+      round,
+      scoreFighter1: mostDamage.id === fighter1.id ? 10 : 9,
+      scoreFighter2: mostDamage.id === fighter2.id ? 10 : 9,
+    });
+  }
+
+  return fightDecisions;
 };
