@@ -1,5 +1,5 @@
 import { addAnnouncement, updateFighterCard } from "../helpers";
-import { IAttack, IFighter } from "../type";
+import { IAttack, IFighter, PunchType } from "../type";
 
 const circlingVariants = (attacker: IFighter, defender: IFighter) => {
   return [
@@ -15,6 +15,25 @@ const circlingVariants = (attacker: IFighter, defender: IFighter) => {
     `Focused and methodical, ${attacker.name} circles ${defender.name}, setting up their next move.`,
     `Referee breaks the fighters apart, ${attacker.name} circles ${defender.name}, looking for an opening.`,
     `Referee gives the fighters a warning.`,
+  ];
+};
+
+const attackVariants = (
+  attacker: IFighter,
+  defender: IFighter,
+  action: PunchType
+) => {
+  return [
+    `${attacker.name} is gearing up to throw a ${action}.`,
+    `${attacker.name} sets up to deliver a ${action}.`,
+    `With precision, ${attacker.name} plans to unleash a ${action}.`,
+    `${attacker.name} readies themselves for a ${action} attempt.`,
+    `Looking for an opening, ${attacker.name} prepares to execute a ${action}.`,
+    `${attacker.name} winds up, aiming to throw a ${action}.`,
+    `${attacker.name} focuses and prepares a sharp ${action}.`,
+    `Confidently, ${attacker.name} steps in to attempt a ${action}.`,
+    `${attacker.name} positions themselves for a powerful ${action}.`,
+    `Eyes locked on ${defender.name}, ${attacker.name} moves to throw a ${action}.`,
   ];
 };
 
@@ -37,10 +56,15 @@ export const createActionsNarrative = (
       break;
     }
 
-    addAnnouncement(
-      `${attacker.name} will attempt to throw a ${action}`,
-      "event"
-    );
+    if (!action) return;
+
+    const attackVariant = attackVariants(attacker, defender, action)[
+      Math.floor(
+        Math.random() * attackVariants(attacker, defender, action).length
+      )
+    ];
+
+    addAnnouncement(attackVariant, "event");
 
     if (success) {
       // one in 1000 to land a critical hit
