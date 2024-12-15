@@ -20,8 +20,15 @@ export const generateAttacks = (
   );
 
   // randomize the action based on the preferred techniques
-  const action =
+  let action =
     preferredTechniques[Math.floor(Math.random() * preferredTechniques.length)];
+
+  // TODO: Action will also be based on health and stamina
+  if (attacker.inFight.stamina < 10) {
+    attacker.inFight.engagement = "distance";
+    defender.inFight.engagement = "distance";
+    action = "circling";
+  }
 
   switch (action) {
     case "punch":

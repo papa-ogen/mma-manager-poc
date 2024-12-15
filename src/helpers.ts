@@ -53,6 +53,23 @@ export const updateFighterCard = (fighter: IFighter) => {
   const health = fighterCard!.querySelector(`#${fighter.id}-health > span`);
   const stamina = fighterCard!.querySelector(`#${fighter.id}-stamina > span`);
 
-  health!.textContent = fighter.inFight.health.toString();
+  // format health to number without decimal
+  const formattedHealth = fighter.inFight.health.toFixed(0);
+
+  health!.textContent = formattedHealth;
   stamina!.textContent = fighter.inFight.stamina.toString();
+};
+
+export const updateRound = (round: number) => {
+  const roundElement = document.getElementById("fight-round");
+  roundElement!.textContent = `${round}`;
+};
+
+export const updateRoundClock = (roundClock: number) => {
+  const roundClockElement = document.getElementById("fight-clock");
+  // convert round to minutes and seconds and display as string
+  const minutes = Math.floor(roundClock / 60);
+  // 2 leading zeros on seconds
+  const seconds = `0${roundClock % 60}`.slice(-2);
+  roundClockElement!.textContent = `${minutes}:${seconds}`;
 };

@@ -3,12 +3,21 @@ import { actions as actionsData, fighters as fightersData } from "./data";
 import { setInitiative } from "./actions/setInitiative";
 import { IFighter } from "./type";
 import { generateAttacks } from "./actions/generateAttacks";
-import { addAnnouncement, updateFighterCard } from "./helpers";
+import {
+  addAnnouncement,
+  updateFighterCard,
+  updateRound,
+  updateRoundClock,
+} from "./helpers";
 
 const [mike, floyd] = fightersData;
 
 let isFightStarted = false;
 let fightInterval: ReturnType<typeof setInterval> | null = null;
+let roundClock = 300;
+let round = 1;
+const maxRounds = 5; // Title bout
+let elapsedSeconds = 0;
 
 export const fightSimulator = (
   fighter1: IFighter,
@@ -35,6 +44,10 @@ export const fightSimulator = (
 };
 
 document.addEventListener("DOMContentLoaded", () => {
+  // Initialize the round clock and round display
+  updateRoundClock(roundClock);
+  updateRound(round);
+
   const fighter1Card = document.querySelector(`#${mike.id}`);
   const fighter1CardTitle = fighter1Card!.querySelector("h1");
   fighter1CardTitle!.textContent = mike.name;
@@ -71,8 +84,48 @@ document.addEventListener("DOMContentLoaded", () => {
           addAnnouncement("The fight is over!");
           return;
         }
-        fightSimulator(mike, floyd);
-      }, 3000);
+
+        if (roundClock > 0) {
+          roundClock--;
+          elapsedSeconds++;
+          updateRoundClock(roundClock);
+
+          if (elapsedSeconds % 3 === 0) {
+            fightSimulator(mike, floyd);
+          }
+        } else {
+          round++;
+          if (round > maxRounds) {
+            clearInterval(fightInterval!);
+            button!.disabled = true;
+
+            updateRoundClock(roundClock);
+            addAnnouncement("The fight has gone the distance!");
+            addAnnouncement(
+              `Final Decision: ${
+                mike.inFight.health > floyd.inFight.health
+                  ? mike.name
+                  : floyd.name
+              } wins!`
+            );
+            return;
+          }
+
+          // Reset the round clock for the next round
+          roundClock = 300;
+          elapsedSeconds = 0;
+          addAnnouncement(`Round ${round} begins!`);
+        }
+        // Check for knockout
+        if (mike.inFight.health <= 0 || floyd.inFight.health <= 0) {
+          clearInterval(fightInterval!);
+          button!.disabled = true;
+
+          const winner =
+            mike.inFight.health > floyd.inFight.health ? mike : floyd;
+          addAnnouncement(`The fight is over! ${winner.name} wins!`);
+        }
+      }, 1000);
       button!.textContent = "Stop Fight";
     }
 

@@ -53,7 +53,8 @@ export const punchFactory = (
   ][Math.floor(Math.random() * 7)] as PunchType;
 
   const success = calculateSuccess(attacker, defender, baseAction);
-  const damage = Math.floor(Math.random() * 10 + attacker.physical.strength); // TODO: Minus stamina and health
+  const damage =
+    Math.floor(Math.random() * 10 + attacker.physical.strength) / 10; // TODO: Minus stamina and health
 
   return [{ baseAction, action, success, damage }];
 };
