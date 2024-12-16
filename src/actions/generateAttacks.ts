@@ -2,22 +2,36 @@ import { IAction, IAttack, IFighter } from "../type";
 import { kickFactory } from "./kickFactory";
 import { punchFactory } from "./punchFactory";
 
+export const getAvailableActions = (
+  attacker: IFighter,
+  defender: IFighter,
+  actions: IAction[]
+) => {
+  return actions.find(
+    (action) =>
+      action.attacker_posture === attacker.inFight.posture &&
+      action.defender_posture === defender.inFight.posture
+  ) as IAction;
+};
+
+export const getPreferredTechniques = (action: IAction, attacker: IFighter) => {
+  return action.available_actions.filter((technique) =>
+    attacker.background.some((art) => art.techniques.includes(technique))
+  );
+};
+
 export const generateAttacks = (
   attacker: IFighter,
   defender: IFighter,
   actions: IAction[]
 ): IAttack[] => {
   // determine the action based on the posture
-  const availableActions = actions.find(
-    (action) =>
-      action.attacker_posture === attacker.inFight.posture &&
-      action.defender_posture === defender.inFight.posture
-  ) || { available_actions: [] };
+  const availableActions = getAvailableActions(attacker, defender, actions);
 
   // filter available actions based on attacker background
-  const preferredTechniques = availableActions.available_actions.filter(
-    (technique) =>
-      attacker.background.some((art) => art.techniques.includes(technique))
+  const preferredTechniques = getPreferredTechniques(
+    availableActions,
+    attacker
   );
 
   // randomize the action based on the preferred techniques
@@ -31,7 +45,7 @@ export const generateAttacks = (
     action = "circling";
   }
 
-  // TODO: ["kick", "elbow", "knee", "clinch", "dirty boxing"],
+  // TODO: ["elbow", "knee", "clinch", "dirty boxing"],
   switch (action) {
     case "punch":
       return punchFactory(attacker, defender, action);

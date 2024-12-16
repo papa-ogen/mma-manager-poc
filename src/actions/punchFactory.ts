@@ -1,9 +1,10 @@
 import { IAttack, IFighter, MartialArtTechniqueType, PunchType } from "../type";
 
-const calculateSuccess = (
+export const calculateSuccess = (
   attacker: IFighter,
   defender: IFighter,
-  action: MartialArtTechniqueType
+  action: MartialArtTechniqueType,
+  randomFn: () => number = Math.random
 ) => {
   // attacker speed vs defender speed
   const attackerSpeed = attacker.physical.speed;
@@ -29,7 +30,58 @@ const calculateSuccess = (
       (actionIsPartOfBackground ? 0.1 : 0)) /
     10;
 
-  return Math.random() > successChance;
+  return randomFn() > successChance;
+};
+
+export const getPunchAction = (randomFn: () => number = Math.random) => {
+  const actions = [
+    `jab`,
+    `cross`,
+    `hook`,
+    `uppercut`,
+    `overhand`,
+    `backfist`,
+    "superman punch",
+  ] as PunchType[];
+
+  return actions[Math.floor(randomFn() * actions.length)] as PunchType;
+};
+
+export const getDamage = (
+  attacker: IFighter,
+  punchType: PunchType,
+  randomFn: () => number = Math.random
+) => {
+  let baseDamage = 0;
+  switch (punchType) {
+    case "jab":
+      baseDamage = 1;
+      break;
+    case "cross":
+      baseDamage = 2;
+      break;
+    case "hook":
+      baseDamage = 3;
+      break;
+    case "uppercut":
+      baseDamage = 4;
+      break;
+    case "overhand":
+      baseDamage = 5;
+      break;
+    case "backfist":
+      baseDamage = 6;
+      break;
+    case "superman punch":
+      baseDamage = 7;
+      break;
+  }
+
+  return Math.round(
+    baseDamage +
+      attacker.physical.strength +
+      (attacker.physical.speed / 2) * (randomFn() * 10)
+  );
 };
 
 export const punchFactory = (
@@ -37,24 +89,10 @@ export const punchFactory = (
   defender: IFighter,
   baseAction: MartialArtTechniqueType
 ): IAttack[] => {
-  const attackerMainHand =
-    attacker.inFight.stance === "orthodox" ? "left" : "right";
-  const attackerOffHand = attackerMainHand === "left" ? "right" : "left";
-  const randomHand = Math.random() > 0.5;
-
-  const action: PunchType = [
-    `${attackerOffHand} jab`,
-    `${randomHand ? attackerMainHand : attackerOffHand} cross`,
-    `${randomHand ? attackerMainHand : attackerOffHand} hook`,
-    `${randomHand ? attackerMainHand : attackerOffHand} uppercut`,
-    `${attackerMainHand} overhand`,
-    `${randomHand ? attackerMainHand : attackerOffHand} backfist`,
-    "superman punch",
-  ][Math.floor(Math.random() * 7)] as PunchType;
+  const action = getPunchAction();
 
   const success = calculateSuccess(attacker, defender, baseAction);
-  const damage =
-    Math.floor(Math.random() * 10 + attacker.physical.strength) / 10; // TODO: Minus stamina and health
+  const damage = getDamage(attacker, action);
 
   return [{ baseAction, action, success, damage }];
 };

@@ -1,5 +1,10 @@
 import { addAnnouncement, updateFighterCard } from "../helpers";
-import { AttackActionType, IAttack, IFighter } from "../type";
+import {
+  AttackActionType,
+  IAttack,
+  IFighter,
+  MartialArtTechniqueType,
+} from "../type";
 
 const circlingVariants = (attackerName: string, defenderName: string) => {
   return [
@@ -18,11 +23,44 @@ const circlingVariants = (attackerName: string, defenderName: string) => {
   ];
 };
 
-const attackVariants = (
-  attackerName: string,
+const punchVariants = (
+  attacker: IFighter,
   defenderName: string,
-  action: AttackActionType
+  attackerAction: AttackActionType
 ) => {
+  const attackerName = `${attacker.firstName} ${attacker.lastName}`;
+  const attackerMainHand =
+    attacker.inFight.stance === "orthodox" ? "left" : "right";
+  const attackerOffHand = attackerMainHand === "left" ? "right" : "left";
+  const randomHand = Math.random() > 0.5;
+
+  let action = "";
+  switch (attackerAction) {
+    case "jab":
+      action = `${attackerOffHand} jab`;
+      break;
+    case "cross":
+      action = `${randomHand ? attackerMainHand : attackerOffHand} cross`;
+      break;
+    case "hook":
+      action = `${randomHand ? attackerMainHand : attackerOffHand} hook`;
+      break;
+    case "uppercut":
+      action = `${randomHand ? attackerMainHand : attackerOffHand} uppercut`;
+      break;
+    case "overhand":
+      action = `${attackerMainHand} overhand`;
+      break;
+    case "backfist":
+      action = `${randomHand ? attackerMainHand : attackerOffHand} backfist`;
+      break;
+    case "superman punch":
+      action = "superman punch";
+      break;
+    default:
+      action = `${attackerOffHand} jab`;
+  }
+
   return [
     `${attackerName} is gearing up to throw a ${action}.`,
     `${attackerName} sets up to deliver a ${action}.`,
@@ -35,6 +73,87 @@ const attackVariants = (
     `${attackerName} positions themselves for a powerful ${action}.`,
     `Eyes locked on ${defenderName}, ${attackerName} moves to throw a ${action}.`,
   ];
+};
+
+const kickVariants = (
+  attacker: IFighter,
+  defenderName: string,
+  attackerAction: AttackActionType
+) => {
+  const attackerName = `${attacker.firstName} ${attacker.lastName}`;
+  const attackerMainLeg =
+    attacker.inFight.stance === "orthodox" ? "left" : "right";
+  const attackerOffLeg = attackerMainLeg === "left" ? "right" : "left";
+  const randomLeg = Math.random() > 0.5;
+
+  let action = "";
+  switch (attackerAction) {
+    case "front":
+      action = `${attackerMainLeg} front kick`;
+      break;
+    case "roundhouse":
+      action = `${
+        randomLeg ? attackerMainLeg : attackerOffLeg
+      } roundhouse kick`;
+      break;
+    case "side":
+      action = `${randomLeg ? attackerMainLeg : attackerOffLeg} side kick`;
+      break;
+    case "back":
+      action = `${attackerMainLeg} back kick`;
+      break;
+    case "spinning":
+      action = `${attackerMainLeg} spinning back kick`;
+      break;
+    case "crescent":
+      action = `${randomLeg ? attackerMainLeg : attackerOffLeg} crescent kick`;
+      break;
+    case "axe":
+      action = `${attackerMainLeg} axe kick`;
+      break;
+    case "push":
+      action = `${attackerMainLeg} push kick`;
+      break;
+    case "oblique":
+      action = `${attackerMainLeg} oblique kick`;
+      break;
+    case "flying":
+      action = `${attackerMainLeg} flying kick`;
+      break;
+    case "jumping":
+      action = `${attackerMainLeg} jumping kick`;
+      break;
+    default:
+      action = `${attackerMainLeg} front kick`;
+  }
+
+  return [
+    `${attackerName} is gearing up to throw a ${action}.`,
+    `${attackerName} sets up to deliver a ${action}.`,
+    `With precision, ${attackerName} plans to unleash a ${action}.`,
+    `${attackerName} readies themselves for a ${action} attempt.`,
+    `Looking for an opening, ${attackerName} prepares to execute a ${action}.`,
+    `${attackerName} winds up, aiming to throw a ${action}.`,
+    `${attackerName} focuses and prepares a sharp ${action}.`,
+    `Confidently, ${attackerName} steps in to attempt a ${action}.`,
+    `${attackerName} positions themselves for a powerful ${action}.`,
+    `Eyes locked on ${defenderName}, ${attackerName} moves to throw a ${action}.`,
+  ];
+};
+
+const getAttackVariant = (
+  attacker: IFighter,
+  defenderName: string,
+  baseAction: MartialArtTechniqueType,
+  action: AttackActionType
+) => {
+  switch (baseAction) {
+    case "kick":
+      return kickVariants(attacker, defenderName, action);
+    case "punch":
+    default:
+      return punchVariants(attacker, defenderName, action);
+  }
 };
 
 export const createActionsNarrative = (
@@ -63,10 +182,15 @@ export const createActionsNarrative = (
 
     if (!action) return;
 
-    const attackVariant = attackVariants(attackerName, defenderName, action)[
+    const attackVariant = getAttackVariant(
+      attacker,
+      defenderName,
+      baseAction,
+      action
+    )[
       Math.floor(
         Math.random() *
-          attackVariants(attackerName, defenderName, action).length
+          getAttackVariant(attacker, defenderName, baseAction, action).length
       )
     ];
 

@@ -1,5 +1,5 @@
 import { createActionsNarrative } from "./actions/createActionNarrative";
-import { actions as actionsData, fighters as fightersData } from "./data";
+import { actions as actionsData } from "./data";
 import { setInitiative } from "./actions/setInitiative";
 import { IActionLog, IFighter } from "./type";
 import { generateAttacks } from "./actions/generateAttacks";
@@ -11,15 +11,16 @@ import {
   updateRoundClock,
 } from "./helpers";
 import { analyzeRound } from "./actions/analyzeRound";
+import { fighterTestData } from "./__tests__/fighter_test_data";
 
-const [fighter1Data, fighter2Data] = fightersData;
+const { fighter3: fighter1Data, fighter4: fighter2Data } = fighterTestData;
 
 let isFightStarted = false;
 let fightInterval: ReturnType<typeof setInterval> | null = null;
 const defaultRoundClock = 10;
 let roundClock = defaultRoundClock;
 let round = 1;
-const maxRounds = 1; // Title bout
+const maxRounds = 5; // Title bout
 let elapsedSeconds = 0;
 const actionLog: IActionLog[] = [];
 
@@ -201,6 +202,8 @@ document.addEventListener("DOMContentLoaded", () => {
           addAnnouncement(
             `The fight is over! ${winner.firstName} ${winner.lastName} wins!`
           );
+
+          console.log(actionLog);
         }
       }, 1000);
       button!.textContent = "Stop Fight";

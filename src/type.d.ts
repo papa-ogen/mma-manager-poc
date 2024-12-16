@@ -75,7 +75,7 @@ export type SubmissionType =
   | "omoplata";
 export interface IMartialArt {
   name: string;
-  description: string;
+  description?: string;
   techniques: MartialArtTechniqueType[];
 }
 export interface IFighter {
@@ -151,3 +151,5 @@ export interface IFightDecision {
   scoreFighter1: number;
   scoreFighter2: number;
 }
+
+export type FighterLimbType = "left" | "right";
