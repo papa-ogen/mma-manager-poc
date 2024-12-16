@@ -7,8 +7,18 @@ export default defineConfig({
   server: {
     port: 3000,
   },
-  esbuild: {
-    jsxFactory: "html", // Use Lit's `html` as the JSX factory
-    jsxFragment: "html.Fragment", // For JSX fragments
+  test: {
+    coverage: {
+      exclude: [
+        "eslint.config.js",
+        "postcss.config.cjs",
+        "tailwind.config.js",
+        "vite.config.ts",
+        "src/type.d.ts",
+        "src/vite-env.d.ts",
+        "src/__tests__/fighter_test_data.ts",
+      ],
+      reporter: ["text", "html"], // Coverage reporters
+    },
   },
 });
