@@ -68,21 +68,11 @@ export const generateAttacks = (
   randomFn: () => number = Math.random
 ): IAttack[] => {
   const randomSequence = Math.floor(randomFn() * 3) + 1;
+  const attackSequence: IAttack[] = [];
 
-  if (randomSequence === 1) {
-    return [generateAttack(attacker, defender, allActions)];
+  for (let i = 0; i < randomSequence; i++) {
+    attackSequence.push(generateAttack(attacker, defender, allActions));
   }
 
-  if (randomSequence === 2) {
-    return [
-      generateAttack(attacker, defender, allActions),
-      generateAttack(attacker, defender, allActions),
-    ];
-  }
-
-  return [
-    generateAttack(attacker, defender, allActions),
-    generateAttack(attacker, defender, allActions),
-    generateAttack(attacker, defender, allActions),
-  ];
+  return attackSequence;
 };
