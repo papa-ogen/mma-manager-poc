@@ -11,27 +11,31 @@ describe("punchFactory", () => {
   });
   it("should return a punch action", () => {
     const action = getPunchAction(() => 0.2);
-    expect(action).toEqual("cross");
+    expect(action).toEqual("jab");
   });
   it("should return a punch action", () => {
     const action = getPunchAction(() => 0.3);
-    expect(action).toEqual("hook");
+    expect(action).toEqual("cross");
   });
   it("should return a punch action", () => {
     const action = getPunchAction(() => 0.5);
-    expect(action).toEqual("uppercut");
+    expect(action).toEqual("cross");
   });
   it("should return a punch action", () => {
     const action = getPunchAction(() => 0.6);
-    expect(action).toEqual("overhand");
+    expect(action).toEqual("hook");
   });
   it("should return a punch action", () => {
     const action = getPunchAction(() => 0.8);
-    expect(action).toEqual("backfist");
+    expect(action).toEqual("uppercut");
   });
   it("should return a punch action", () => {
     const action = getPunchAction(() => 0.9);
-    expect(action).toEqual("superman punch");
+    expect(action).toEqual("backfist");
+  });
+  it("should return a punch action", () => {
+    const action = getPunchAction(() => 1);
+    expect(action).toEqual("jab");
   });
 
   it("should return a damage value", () => {

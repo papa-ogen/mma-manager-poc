@@ -66,14 +66,42 @@ export const getDamage = (
   );
 };
 
+const getStaminaCost = (kickType: KickType) => {
+  switch (kickType) {
+    case "front":
+      return 1;
+    case "roundhouse":
+      return 2;
+    case "side":
+      return 2;
+    case "back":
+      return 2;
+    case "crescent":
+      return 1;
+    case "axe":
+      return 3;
+    case "spinning":
+      return 3;
+    case "push":
+      return 1;
+    case "oblique":
+      return 1;
+    case "flying":
+      return 3;
+    case "jumping":
+      return 3;
+  }
+};
+
 export const kickFactory = (
   attacker: IFighter,
   defender: IFighter,
   baseAction: MartialArtTechniqueType
-): IAttack[] => {
+): IAttack => {
   const action = getKickAction();
   const success = calculateSuccess(attacker, defender, baseAction);
   const damage = getDamage(attacker, action);
+  const stamina = getStaminaCost(action);
 
-  return [{ baseAction, action, success, damage }];
+  return { baseAction, action, success, damage, stamina };
 };

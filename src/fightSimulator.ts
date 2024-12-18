@@ -1,4 +1,4 @@
-import { createActionsNarrative } from "./actions/createActionNarrative";
+import { createActionsNarrative } from "./narration/createActionNarrative";
 import { actions as actionsData } from "./data";
 import { setInitiative } from "./actions/setInitiative";
 import { IActionLog, IFighter } from "./type";
@@ -13,7 +13,7 @@ import {
 import { analyzeRound } from "./actions/analyzeRound";
 import { fighterTestData } from "./__tests__/fighter_test_data";
 
-const { fighter3: fighter1Data, fighter4: fighter2Data } = fighterTestData;
+const { fighter1: fighter1Data, fighter2: fighter2Data } = fighterTestData;
 
 let isFightStarted = false;
 let fightInterval: ReturnType<typeof setInterval> | null = null;
@@ -23,12 +23,19 @@ let round = 1;
 const maxRounds = 5; // Title bout
 let elapsedSeconds = 0;
 const actionLog: IActionLog[] = [];
+let currentInitiative: IFighter | null = null;
 
 export const fightSimulator = (
   fighter1: IFighter,
   fighter2: IFighter
 ): void => {
-  const [attacker, defender] = setInitiative(fighter1, fighter2);
+  const [attacker, defender] = setInitiative(
+    fighter1,
+    fighter2,
+    currentInitiative
+  );
+
+  currentInitiative = attacker;
 
   // determine action based on the engagement
   if (attacker.inFight.engagement === "start position") {

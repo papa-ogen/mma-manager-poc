@@ -20,13 +20,13 @@ export const getPreferredTechniques = (action: IAction, attacker: IFighter) => {
   );
 };
 
-export const generateAttacks = (
+export const generateAttack = (
   attacker: IFighter,
   defender: IFighter,
-  actions: IAction[]
-): IAttack[] => {
+  allActions: IAction[]
+): IAttack => {
   // determine the action based on the posture
-  const availableActions = getAvailableActions(attacker, defender, actions);
+  const availableActions = getAvailableActions(attacker, defender, allActions);
 
   // filter available actions based on attacker background
   const preferredTechniques = getPreferredTechniques(
@@ -42,20 +42,47 @@ export const generateAttacks = (
   if (attacker.inFight.stamina < 10) {
     attacker.inFight.engagement = "distance";
     defender.inFight.engagement = "distance";
-    action = "circling";
+    action = "circle";
   }
 
-  // TODO: ["elbow", "knee", "clinch", "dirty boxing"],
   switch (action) {
     case "punch":
       return punchFactory(attacker, defender, action);
     case "kick":
       return kickFactory(attacker, defender, action);
-    case "elbow":
-      return [{ baseAction: "elbow" }];
-    case "knee":
-      return [{ baseAction: "knee" }];
     default:
-      return [{ baseAction: "circling" }];
+      return {
+        baseAction: "circle",
+        action: "pivoting",
+        success: true,
+        damage: 0,
+        stamina: 10,
+      };
   }
+};
+
+export const generateAttacks = (
+  attacker: IFighter,
+  defender: IFighter,
+  allActions: IAction[],
+  randomFn: () => number = Math.random
+): IAttack[] => {
+  const randomSequence = Math.floor(randomFn() * 3) + 1;
+
+  if (randomSequence === 1) {
+    return [generateAttack(attacker, defender, allActions)];
+  }
+
+  if (randomSequence === 2) {
+    return [
+      generateAttack(attacker, defender, allActions),
+      generateAttack(attacker, defender, allActions),
+    ];
+  }
+
+  return [
+    generateAttack(attacker, defender, allActions),
+    generateAttack(attacker, defender, allActions),
+    generateAttack(attacker, defender, allActions),
+  ];
 };

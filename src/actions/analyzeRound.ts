@@ -52,6 +52,12 @@ export const analyzeRound = (
   const mostStamina = fighter1Stamina > fighter2Stamina ? fighter1 : fighter2;
   const leastStamina = fighter1Stamina < fighter2Stamina ? fighter1 : fighter2;
 
+  const mostAttacks =
+    roundLogsFighter1.length > roundLogsFighter2.length ? fighter1 : fighter2;
+  console.log(
+    `${mostAttacks.getFullName()} really was the agressor this round.`
+  );
+
   // narration
   if (mostDamage.id === mostSuccess.id) {
     addAnnouncement(

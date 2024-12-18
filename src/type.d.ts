@@ -16,7 +16,7 @@ export type MartialArtTechniqueType =
   | "disengage"
   | "moving closer"
   | "moving away"
-  | "circling";
+  | "circle";
 export type PostureType = "standing" | "laying down" | "seated" | "crouching";
 export type EngagementType =
   | "grappling"
@@ -73,7 +73,6 @@ export type SubmissionType =
   | "kneebar"
   | "americana"
   | "omoplata";
-
 export type BlockType =
   | "dodge"
   | "miss"
@@ -82,16 +81,25 @@ export type BlockType =
   | "check"
   | "slip"
   | "roll"
-  | "lean"
   | "pull"
   | "push"
-  | "jam"
   | "cover"
   | "lock"
-  | "hold"
   | "tie-up"
   | "reversal"
   | "escape";
+
+export type CircleType =
+  | "circling"
+  | "moving around"
+  | "taunting"
+  | "sidestepping"
+  | "backpedaling"
+  | "feinting"
+  | "dancing"
+  | "pivoting"
+  | "shuffling"
+  | "resetting";
 export interface IMartialArt {
   name: string;
   description?: string;
@@ -143,12 +151,14 @@ export type AttackActionType =
   | KickType
   | ElbowType
   | KneeType
-  | GrapplingType;
+  | GrapplingType
+  | CircleType;
 export interface IAttack {
   baseAction: MartialArtTechniqueType;
-  action?: AttackActionType;
-  success?: boolean;
-  damage?: number;
+  action: AttackActionType;
+  success: boolean;
+  damage: number;
+  stamina: number;
 }
 
 declare global {

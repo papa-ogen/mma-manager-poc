@@ -8,14 +8,28 @@ describe("setInitiative based on different parameters", () => {
   it("should return the first fighter as the attacker if the first fighter has a higher initiative", () => {
     const mockRandom = () => 0.6;
 
-    const [attacker] = setInitiative(fighter1, fighter2, mockRandom);
+    const [attacker] = setInitiative(fighter1, fighter2, null, mockRandom);
     expect(attacker).toEqual(fighter1);
   });
 
   it("should return the second fighter as the attacker if the second fighter has a higher initiative", () => {
     const mockRandom = () => 0.4;
 
-    const [attacker] = setInitiative(fighter1, fighter2, mockRandom);
+    const [attacker] = setInitiative(fighter1, fighter2, null, mockRandom);
     expect(attacker).toEqual(fighter2);
+  });
+
+  it("should return the second fighter as the attacker if the second fighter had previous initiative", () => {
+    const mockRandom = () => 0.5;
+
+    const [attacker] = setInitiative(fighter1, fighter2, fighter2, mockRandom);
+    expect(attacker).toEqual(fighter2);
+  });
+
+  it("should return the first fighter as the attacker if the first fighter had previous initiative", () => {
+    const mockRandom = () => 0.5;
+
+    const [attacker] = setInitiative(fighter1, fighter2, fighter1, mockRandom);
+    expect(attacker).toEqual(fighter1);
   });
 });

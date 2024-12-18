@@ -24,12 +24,20 @@ import * as kickFactoryModule from "../actions/kickFactory";
 
 describe("generateAttacks", () => {
   beforeEach(() => {
-    vi.spyOn(kickFactoryModule, "kickFactory").mockReturnValue([
-      { baseAction: "kick" },
-    ]);
-    vi.spyOn(punchFactoryModule, "punchFactory").mockReturnValue([
-      { baseAction: "punch" },
-    ]);
+    vi.spyOn(kickFactoryModule, "kickFactory").mockReturnValue({
+      baseAction: "kick",
+      action: "front",
+      damage: 10,
+      success: true,
+      stamina: 10,
+    });
+    vi.spyOn(punchFactoryModule, "punchFactory").mockReturnValue({
+      baseAction: "punch",
+      action: "jab",
+      damage: 7,
+      success: true,
+      stamina: 10,
+    });
   });
 
   const mockAttacker: IFighter = fighter1;
@@ -74,14 +82,27 @@ describe("generateAttacks", () => {
   ];
 
   it("should call punchFactory when the selected action is 'punch'", () => {
-    const result = generateAttacks(mockAttacker, mockDefender, mockActions);
+    const result = generateAttacks(
+      mockAttacker,
+      mockDefender,
+      mockActions,
+      () => 0.1
+    );
 
     expect(punchFactoryModule.punchFactory).toHaveBeenCalledWith(
       mockAttacker,
       mockDefender,
       "punch"
     );
-    expect(result).toEqual([{ baseAction: "punch" }]);
+    expect(result).toEqual([
+      {
+        baseAction: "punch",
+        action: "jab",
+        damage: 7,
+        success: true,
+        stamina: 10,
+      },
+    ]);
   });
 
   it("should call kickFactory when the selected action is 'kick'", () => {
@@ -91,17 +112,30 @@ describe("generateAttacks", () => {
       background: [{ name: "", techniques: ["kick"] }],
     };
 
-    const result = generateAttacks(attackerWithKick, mockDefender, mockActions);
+    const result = generateAttacks(
+      attackerWithKick,
+      mockDefender,
+      mockActions,
+      () => 0.1
+    );
 
     expect(kickFactoryModule.kickFactory).toHaveBeenCalledWith(
       attackerWithKick,
       mockDefender,
       "kick"
     );
-    expect(result).toEqual([{ baseAction: "kick" }]);
+    expect(result).toEqual([
+      {
+        baseAction: "kick",
+        action: "front",
+        damage: 10,
+        success: true,
+        stamina: 10,
+      },
+    ]);
   });
 
-  it("should return 'circling' when stamina is too low", () => {
+  it("should return 'circle' when stamina is too low", () => {
     const lowStaminaAttacker: IFighter = {
       ...mockAttacker,
       inFight: { ...mockAttacker.inFight, stamina: 5 },
@@ -110,38 +144,21 @@ describe("generateAttacks", () => {
     const result = generateAttacks(
       lowStaminaAttacker,
       mockDefender,
-      mockActions
+      mockActions,
+      () => 0.1
     );
 
-    expect(result).toEqual([{ baseAction: "circling" }]);
+    expect(result).toEqual([
+      {
+        action: "pivoting",
+        baseAction: "circle",
+        damage: 0,
+        stamina: 10,
+        success: true,
+      },
+    ]);
     expect(lowStaminaAttacker.inFight.engagement).toBe("distance");
     expect(mockDefender.inFight.engagement).toBe("distance");
-  });
-
-  it("should return elbow when the selected action is 'elbow'", () => {
-    const attackerWithElbow: IFighter = {
-      ...mockAttacker,
-      background: [{ name: "", techniques: ["elbow"] }],
-    };
-
-    const result = generateAttacks(
-      attackerWithElbow,
-      mockDefender,
-      mockActions
-    );
-
-    expect(result).toEqual([{ baseAction: "elbow" }]);
-  });
-
-  it("should return knee when the selected action is 'knee'", () => {
-    const attackerWithKnee: IFighter = {
-      ...mockAttacker,
-      background: [{ name: "", techniques: ["knee"] }],
-    };
-
-    const result = generateAttacks(attackerWithKnee, mockDefender, mockActions);
-
-    expect(result).toEqual([{ baseAction: "knee" }]);
   });
 
   it("should return the available actions for both fighters standing", () => {
