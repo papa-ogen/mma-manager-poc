@@ -1,35 +1,69 @@
 import { IAttack, IFighter, KickType, MartialArtTechniqueType } from "../type";
+import { calculateSuccess } from "./calculateSuccess";
 
-const calculateSuccess = (
+export const getKickAction = (randomFn: () => number = Math.random) => {
+  const actions = [
+    "front",
+    "roundhouse",
+    "side",
+    "back",
+    "crescent",
+    "axe",
+    "spinning",
+    "push",
+    "oblique",
+    "flying",
+  ] as KickType[];
+
+  return actions[Math.floor(randomFn() * actions.length)] as KickType;
+};
+
+export const getDamage = (
   attacker: IFighter,
-  defender: IFighter,
-  action: MartialArtTechniqueType
+  kickType: KickType,
+  randomFn: () => number = Math.random
 ) => {
-  // attacker speed vs defender speed
-  const attackerSpeed = attacker.physical.speed;
-  const defenderSpeed = defender.physical.speed;
-  const speedDifference = attackerSpeed - defenderSpeed;
-  const speedModifier = speedDifference / 100;
-  // attacker stamina and health
-  const attackerStamina = attacker.inFight.stamina;
-  const staminaModifier = attackerStamina / 100;
-  const attackerHealth = attacker.inFight.health;
-  const healthModifier = attackerHealth / 100;
+  let baseDamage = 0;
+  switch (kickType) {
+    case "front":
+      baseDamage = 1;
+      break;
+    case "roundhouse":
+      baseDamage = 3;
+      break;
+    case "side":
+      baseDamage = 2;
+      break;
+    case "back":
+      baseDamage = 2;
+      break;
+    case "crescent":
+      baseDamage = 1;
+      break;
+    case "axe":
+      baseDamage = 3;
+      break;
+    case "spinning":
+      baseDamage = 3;
+      break;
+    case "push":
+      baseDamage = 1;
+      break;
+    case "oblique":
+      baseDamage = 1;
+      break;
+    case "flying":
+      baseDamage = 2;
+      break;
+    case "jumping":
+      baseDamage = 2;
+  }
 
-  // is action part of fighter's background?
-  const actionIsPartOfBackground = attacker.background.some((art) =>
-    art.techniques.includes(action)
+  return Math.round(
+    baseDamage +
+      attacker.physical.strength +
+      (attacker.physical.speed / 2) * (randomFn() * 10)
   );
-
-  const successChance =
-    (0.5 +
-      speedModifier +
-      staminaModifier +
-      healthModifier -
-      (actionIsPartOfBackground ? 0.1 : 0)) /
-    10;
-
-  return Math.random() > successChance;
 };
 
 export const kickFactory = (
@@ -37,24 +71,9 @@ export const kickFactory = (
   defender: IFighter,
   baseAction: MartialArtTechniqueType
 ): IAttack[] => {
+  const action = getKickAction();
   const success = calculateSuccess(attacker, defender, baseAction);
-  const damage =
-    Math.floor(Math.random() * 10 + attacker.physical.strength) / 10; // TODO: Minus stamina and health
-
-  const action: KickType = [
-    "front kick",
-    "roundhouse kick",
-    "side kick",
-    "back kick",
-    "crescent kick",
-    "axe kick",
-    "spinning hook kick",
-    "spinning back kick",
-    "spinning crescent kick",
-    "spinning axe kick",
-    "spinning heel kick",
-    "spinning sweep",
-  ][Math.floor(Math.random() * 12)] as KickType;
+  const damage = getDamage(attacker, action);
 
   return [{ baseAction, action, success, damage }];
 };

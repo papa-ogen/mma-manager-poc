@@ -73,6 +73,25 @@ export type SubmissionType =
   | "kneebar"
   | "americana"
   | "omoplata";
+
+export type BlockType =
+  | "dodge"
+  | "miss"
+  | "block"
+  | "catch"
+  | "check"
+  | "slip"
+  | "roll"
+  | "lean"
+  | "pull"
+  | "push"
+  | "jam"
+  | "cover"
+  | "lock"
+  | "hold"
+  | "tie-up"
+  | "reversal"
+  | "escape";
 export interface IMartialArt {
   name: string;
   description?: string;
